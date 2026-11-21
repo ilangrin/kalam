@@ -1,4 +1,6 @@
 <title>כלאם</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;700&family=Rubik:wght@400;500;700;800&display=swap">
@@ -30,6 +32,8 @@
   --ok:#3DD69A; --ok-soft:#133528; --bad:#FF6B6F; --bad-soft:#3E1C1E;
   --lock:#2E2C42; --lock-d:#22213A; --on:#1A1222; color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important} /* the artifact viewer adds this; the Android app has no such wrapper */
+body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:16px;line-height:1.45;direction:rtl}
 body.lock{overflow:hidden}
 button{font:inherit;color:inherit}
