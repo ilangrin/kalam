@@ -481,7 +481,9 @@ function check(){
   R.phase=ok?"ok":"bad";
   if(ok){R.correct++;S.right++}else{R.mistakes++;S.wrong++;R.steps.push(q(st.t,st.w))}
   say(st.w.id,"p"); drawStep(); save();
+  if(ok)autoNext(1400); // right answer: move on by itself after the praise and the word is heard
 }
+function autoNext(ms){const run=R,at=R.i;setTimeout(()=>{if(R===run&&R.i===at&&R.phase!=="bad")next()},ms)}
 function next(){
   R.i++; R.sel=null; R.phase="ask"; R.m=null;
   if(R.i>=R.steps.length)return finish();
@@ -534,7 +536,7 @@ document.addEventListener("click",e=>{
       if(m.a===m.h){m.got.add(m.a);m.a=m.h=null;drawStep()}
       else{const ids=[m.a,m.h];m.a=m.h=null;R.mistakes++;drawStep();
         ids.forEach((x,i)=>{const el=document.querySelector(`[data-match="${i?"h":"a"}"][data-id="${x}"]`);if(el){el.classList.add("wrong","shake");setTimeout(()=>el.classList.remove("wrong","shake"),450)}})}
-      if(m.got.size===st.pairs.length){S.right++;save()}
+      if(m.got.size===st.pairs.length){S.right++;save();autoNext(900)}
     }else drawStep();
     return;
   }
