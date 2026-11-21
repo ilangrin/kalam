@@ -1,0 +1,542 @@
+<title>כלאם</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;700&family=Rubik:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: phone-first app shell. A winding lesson path (units of 10), a full-screen exercise runner, bottom tab bar.
+   "Cloud & coral": warm cloud-white ground, coral = Palestinian street dialect + main actions,
+   violet-indigo = formal Arabic, sun-yellow = rewards (XP, streak, finished lessons). */
+:root{
+  --bg:#F4F2EE; --surface:#FFFFFF; --ink:#1B1A2E; --muted:#6B6878; --line:#E6E1D8;
+  --pal:#FF6A3D; --pal-d:#D9481E; --pal-soft:#FFEDE5; --pal-ink:#C2410C;
+  --fus:#5B4BDB; --fus-d:#3F31B0; --fus-soft:#ECEBFF; --fus-ink:#4338CA;
+  --gold:#FFB020; --gold-d:#D18A00; --gold-soft:#FFF3D6; --gold-ink:#B45309;
+  --ok:#14A37A; --ok-soft:#DDF5EC; --bad:#E5484D; --bad-soft:#FDE7E7;
+  --lock:#E4E0D8; --lock-d:#CCC6BB; --on:#FFFFFF;
+  --f-ui:"Rubik","Segoe UI",system-ui,sans-serif; --f-ar:"Noto Naskh Arabic","Geeza Pro","Arial",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121220; --surface:#1C1B2E; --ink:#F2F0FF; --muted:#A3A0B8; --line:#2D2B45;
+  --pal:#FF7A50; --pal-d:#C2471F; --pal-soft:#3A2220; --pal-ink:#FFAA88;
+  --fus:#9B8CFF; --fus-d:#6252D9; --fus-soft:#24224A; --fus-ink:#BDB3FF;
+  --gold:#FFC046; --gold-d:#B88300; --gold-soft:#3A2E14; --gold-ink:#FFC046;
+  --ok:#3DD69A; --ok-soft:#133528; --bad:#FF6B6F; --bad-soft:#3E1C1E;
+  --lock:#2E2C42; --lock-d:#22213A; --on:#1A1222; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121220; --surface:#1C1B2E; --ink:#F2F0FF; --muted:#A3A0B8; --line:#2D2B45;
+  --pal:#FF7A50; --pal-d:#C2471F; --pal-soft:#3A2220; --pal-ink:#FFAA88;
+  --fus:#9B8CFF; --fus-d:#6252D9; --fus-soft:#24224A; --fus-ink:#BDB3FF;
+  --gold:#FFC046; --gold-d:#B88300; --gold-soft:#3A2E14; --gold-ink:#FFC046;
+  --ok:#3DD69A; --ok-soft:#133528; --bad:#FF6B6F; --bad-soft:#3E1C1E;
+  --lock:#2E2C42; --lock-d:#22213A; --on:#1A1222; color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:16px;line-height:1.45;direction:rtl}
+body.lock{overflow:hidden}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:3px solid var(--fus);outline-offset:2px}
+.px{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.ar{font-family:var(--f-ar);direction:rtl;font-weight:700;line-height:1.55}
+
+/* top bar */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--bg);border-bottom:2px solid var(--line)}
+.top-in{max-width:560px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.25rem}
+.brand .logo{width:36px;height:36px;border-radius:10px;box-shadow:0 2px 0 var(--line)}
+.pills{display:flex;gap:6px}
+.pill{display:flex;align-items:center;gap:5px;font-weight:700;font-variant-numeric:tabular-nums;padding:4px 10px;border-radius:99px;background:var(--surface);border:2px solid var(--line);font-size:.92rem}
+.pill svg{width:18px;height:18px}
+.pill.streak{color:var(--gold-ink)} .pill.streak.off{color:var(--muted)}
+.pill.xp{color:var(--fus-ink)} .pill.words{color:var(--pal-ink)}
+
+main{max-width:560px;margin:0 auto;padding-block:14px calc(96px + env(safe-area-inset-bottom,0px))}
+.today-line{color:var(--muted);font-size:.9rem;margin:0 0 12px}
+
+/* path */
+.unit{border-radius:18px;background:var(--pal);color:var(--on);padding:14px 16px;box-shadow:0 4px 0 var(--pal-d);display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:22px}
+.unit:first-child{margin-top:0}
+.unit.u-alt{background:var(--fus);box-shadow:0 4px 0 var(--fus-d)}
+.unit.u-lock{background:var(--lock);box-shadow:0 4px 0 var(--lock-d);color:var(--muted)}
+.unit h2{margin:0;font-size:1.05rem;font-weight:800}
+.unit p{margin:2px 0 0;font-size:.86rem;opacity:.9}
+.unit .cnt{font-weight:700;font-variant-numeric:tabular-nums;font-size:.9rem;white-space:nowrap}
+.path{display:flex;flex-direction:column;align-items:center;gap:16px;padding:22px 0 6px}
+.node-wrap{position:relative;display:flex;flex-direction:column;align-items:center}
+.node{width:70px;height:66px;border-radius:50%;border:none;display:grid;place-items:center;cursor:pointer;font-weight:800;font-size:1.15rem;font-variant-numeric:tabular-nums;transition:transform .08s}
+.node svg{width:30px;height:30px}
+.node:active{transform:translateY(4px)}
+.node.done{background:var(--gold);color:var(--on);box-shadow:0 6px 0 var(--gold-d)}
+.node.open{background:var(--pal);color:var(--on);box-shadow:0 6px 0 var(--pal-d)}
+.node.cur{width:84px;height:78px;background:var(--pal);color:var(--on);box-shadow:0 7px 0 var(--pal-d),0 0 0 7px var(--pal-soft)}
+.node.locked{background:var(--lock);color:var(--muted);box-shadow:0 6px 0 var(--lock-d)}
+.bubble{position:absolute;bottom:calc(100% + 14px);white-space:nowrap;background:var(--surface);border:2px solid var(--line);color:var(--pal-ink);font-weight:800;padding:6px 14px;border-radius:12px;font-size:.92rem;z-index:2}
+.bubble::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:8px solid transparent;border-top-color:var(--line)}
+@media (prefers-reduced-motion:no-preference){.bubble{animation:bob 1.6s ease-in-out infinite}@keyframes bob{50%{transform:translateY(-4px)}}}
+.node-cap{font-size:.75rem;color:var(--muted);margin-top:10px;max-width:120px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tipcard{margin-top:18px;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;font-size:.92rem}
+.tipcard b{display:block;margin-bottom:2px}
+.tipcard .x{margin-inline-start:auto;background:none;border:none;color:var(--muted);cursor:pointer;padding:2px 6px;font-size:1.1rem}
+
+/* generic 3D buttons */
+.b3{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:16px;padding:14px 20px;font-weight:800;font-size:1rem;letter-spacing:.02em;cursor:pointer;background:var(--pal);color:var(--on);box-shadow:0 4px 0 var(--pal-d);width:100%;transition:transform .06s}
+.b3:active{transform:translateY(3px);box-shadow:0 1px 0 var(--pal-d)}
+.b3[disabled]{background:var(--lock);color:var(--muted);box-shadow:0 4px 0 var(--lock-d);cursor:default;transform:none}
+.b3.fus{background:var(--fus);box-shadow:0 4px 0 var(--fus-d)}
+.b3.gold{background:var(--gold);box-shadow:0 4px 0 var(--gold-d)}
+.b3.bad{background:var(--bad);box-shadow:0 4px 0 color-mix(in srgb,var(--bad) 70%,#000)}
+.b3.ghost{background:var(--surface);color:var(--ink);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)}
+
+/* practice tab */
+.hero{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:20px 18px;display:flex;flex-direction:column;gap:14px}
+.hero h2{margin:0;font-size:1.3rem;font-weight:800;text-wrap:balance}
+.hero p{margin:0;color:var(--muted)}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.stat{background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:12px 8px;text-align:center}
+.stat b{display:block;font-size:1.35rem;font-weight:800;font-variant-numeric:tabular-nums}
+.stat span{font-size:.78rem;color:var(--muted)}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:12px}
+.wd{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.75rem;color:var(--muted)}
+.wd i{width:28px;height:28px;border-radius:50%;background:var(--lock);display:grid;place-items:center;font-style:normal}
+.wd.on i{background:var(--gold);color:var(--on)}
+.wd.rest i{background:transparent;border:2px dashed var(--line)}
+.wd.now{color:var(--ink);font-weight:700}
+.sec-h{font-size:1rem;font-weight:800;margin:22px 0 8px}
+
+/* dictionary */
+.search{font:inherit;width:100%;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:var(--surface);color:var(--ink)}
+.search:focus{outline:none;border-color:var(--fus)}
+.legend{display:flex;gap:14px;font-size:.8rem;color:var(--muted);margin:10px 2px;flex-wrap:wrap}
+.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-inline-end:5px;background:var(--c)}
+.dict{background:var(--surface);border:2px solid var(--line);border-radius:16px;overflow:hidden}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;padding:12px 14px;border-bottom:2px solid var(--line)}
+.row:last-child{border-bottom:none}
+.row .he{grid-column:1/-1;font-weight:700;display:flex;justify-content:space-between;gap:8px}
+.row .he small{font-weight:400;color:var(--muted);font-size:.78rem}
+.mini{display:flex;align-items:center;gap:8px;min-width:0;background:var(--bg);border:none;border-radius:12px;padding:6px 10px;text-align:right;cursor:pointer}
+.mini .ar{font-size:1.15rem;display:block}
+.mini .tr{font-size:.82rem;color:var(--muted)}
+.mini .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.mini.p .dot{background:var(--pal)} .mini.f .dot{background:var(--fus)}
+.empty{padding:18px;color:var(--muted);text-align:center}
+
+/* tab bar */
+nav.tabs{position:fixed;inset:auto 0 0 0;z-index:7;background:var(--surface);border-top:2px solid var(--line);padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
+.tabs-in{max-width:560px;margin:0 auto;display:flex;gap:6px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:2px solid transparent;border-radius:14px;padding:6px 4px;color:var(--muted);font-weight:700;font-size:.8rem;cursor:pointer}
+.tab svg{width:26px;height:26px}
+.tab[aria-selected="true"]{color:var(--pal-ink);background:var(--pal-soft);border-color:color-mix(in srgb,var(--pal) 35%,transparent)}
+
+/* bottom sheet */
+.scrim{position:fixed;inset:0;background:color-mix(in srgb,#000 40%,transparent);z-index:20}
+.sheet{position:fixed;inset:auto 0 0 0;z-index:21;background:var(--surface);border-radius:22px 22px 0 0;padding-top:18px;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+.sheet-in{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.sheet h3{margin:0;font-size:1.25rem;font-weight:800}
+.sheet .words{display:flex;gap:8px;flex-wrap:wrap}
+.sheet .wchip{background:var(--pal-soft);color:var(--pal-ink);font-weight:700;padding:6px 12px;border-radius:99px}
+.sheet .sub{color:var(--muted);font-size:.9rem;margin:0}
+
+/* runner */
+.runner{position:fixed;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.r-top{max-width:560px;width:100%;margin:0 auto;display:flex;align-items:center;gap:12px;padding-block:12px}
+.r-x{background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;display:grid;place-items:center}
+.r-x svg{width:26px;height:26px}
+.bar{flex:1;height:16px;border-radius:99px;background:var(--lock);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--pal);border-radius:99px;transition:width .35s ease;box-shadow:inset 0 -4px 0 color-mix(in srgb,#000 12%,transparent)}
+.r-main{flex:1;overflow-y:auto}
+.r-body{max-width:560px;margin:0 auto;padding-block:8px 20px;display:flex;flex-direction:column;gap:16px}
+.kind{font-size:1.3rem;font-weight:800;margin:0;text-wrap:balance}
+.tag{align-self:flex-start;font-size:.78rem;font-weight:800;letter-spacing:.06em;padding:4px 12px;border-radius:99px;background:var(--fus-soft);color:var(--fus-ink)}
+.tag.new{background:var(--pal-soft);color:var(--pal-ink)}
+.tag.bonus{background:var(--gold-soft);color:var(--gold-ink)}
+.meaning{font-size:2rem;font-weight:800;margin:0;text-wrap:balance}
+.ver{border-radius:18px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 12px;border:2px solid transparent}
+.ver.pal{background:var(--pal-soft);border-color:color-mix(in srgb,var(--pal) 30%,transparent)}
+.ver.fus{background:var(--fus-soft);border-color:color-mix(in srgb,var(--fus) 30%,transparent)}
+.ver .lab{grid-column:1/-1;font-size:.74rem;font-weight:800;letter-spacing:.05em}
+.ver.pal .lab{color:var(--pal-ink)} .ver.fus .lab{color:var(--fus-ink)}
+.ver .ar{font-size:2.1rem}
+.ver .tr{font-size:1.15rem}
+.plays{display:flex;gap:8px;grid-column:2;grid-row:2/4}
+.play{width:52px;height:50px;border-radius:14px;border:none;display:grid;place-items:center;cursor:pointer;color:var(--on)}
+.play svg{width:24px;height:24px}
+.play.p{background:var(--pal);box-shadow:0 4px 0 var(--pal-d)} .play.f{background:var(--fus);box-shadow:0 4px 0 var(--fus-d)}
+.play.slow{width:42px;font-weight:800;font-size:.78rem}
+.play:active{transform:translateY(3px);box-shadow:none}
+.tipline{color:var(--muted);font-size:.95rem;background:var(--surface);border:2px dashed var(--line);border-radius:14px;padding:10px 14px}
+.prompt{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.prompt .ar{font-size:2.2rem}
+.prompt .tr{color:var(--muted);font-size:1.05rem}
+.bigplay{width:96px;height:90px;border-radius:24px}
+.bigplay svg{width:42px;height:42px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{background:var(--surface);border:2px solid var(--line);box-shadow:0 4px 0 var(--line);border-radius:16px;padding:14px 10px;cursor:pointer;text-align:center;min-width:0;font-weight:700;font-size:1.05rem;transition:transform .06s}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.opt .ar{display:block;font-size:1.5rem}
+.opt .tr{display:block;font-weight:400;font-size:.88rem;color:var(--muted)}
+.opt.sel{border-color:var(--fus);background:var(--fus-soft);box-shadow:0 4px 0 var(--fus)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft);box-shadow:0 4px 0 var(--ok)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft);box-shadow:0 4px 0 var(--bad)}
+.opt[disabled]{cursor:default}
+.match{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.match .col{display:flex;flex-direction:column;gap:10px}
+.opt.gone{opacity:.35;box-shadow:none;border-color:var(--line);background:var(--bg)}
+@media (prefers-reduced-motion:no-preference){.opt.shake{animation:shake .3s}@keyframes shake{25%{transform:translateX(6px)}75%{transform:translateX(-6px)}}}
+.r-foot{border-top:2px solid var(--line);background:var(--bg)}
+.r-foot.ok{background:var(--ok-soft);border-color:transparent}
+.r-foot.bad{background:var(--bad-soft);border-color:transparent}
+.r-foot-in{max-width:560px;margin:0 auto;padding-block:14px 16px;display:flex;flex-direction:column;gap:12px}
+.fb{display:flex;gap:10px;align-items:flex-start}
+.fb .ic{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;flex:none;color:var(--on)}
+.fb .ic svg{width:22px;height:22px}
+.ok .fb .ic{background:var(--ok)} .bad .fb .ic{background:var(--bad)}
+.fb h4{margin:0;font-size:1.15rem;font-weight:800}
+.ok .fb h4{color:var(--ok)} .bad .fb h4{color:var(--bad)}
+.fb p{margin:2px 0 0;font-size:.95rem}
+.fb .ar{font-size:1.2rem}
+.done-screen{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;padding-top:30px}
+.medal{width:120px;height:120px;border-radius:50%;background:var(--gold);color:var(--on);display:grid;place-items:center;box-shadow:0 8px 0 var(--gold-d),0 0 0 12px var(--gold-soft)}
+.medal svg{width:60px;height:60px}
+.done-screen h2{margin:16px 0 0;font-size:1.7rem;font-weight:800}
+.done-screen p{margin:0;color:var(--muted)}
+.rew{display:flex;gap:10px;width:100%}
+.rew div{flex:1;border:2px solid var(--line);border-radius:16px;padding:10px;background:var(--surface)}
+.rew b{display:block;font-size:1.4rem;font-variant-numeric:tabular-nums}
+.rew .x b{color:var(--fus-ink)} .rew .s b{color:var(--gold-ink)} .rew .a b{color:var(--ok)}
+.rew span{font-size:.78rem;color:var(--muted);font-weight:700}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:.92rem;max-width:90vw;z-index:40;text-align:center}
+</style>
+
+<header class="top px"><div class="top-in">
+  <div class="brand"><img class="logo" src="data:image/png;base64,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" alt="" width="36" height="36">כלאם</div>
+  <div class="pills" id="pills"></div>
+</div></header>
+<main class="px" id="view"></main>
+<nav class="tabs px" role="tablist"><div class="tabs-in">
+  <button class="tab" role="tab" data-tab="learn" id="t-learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 4l9 6.5"/><path d="M5.5 9v10h13V9"/><path d="M10 19v-5h4v5"/></svg>מסלול</button>
+  <button class="tab" role="tab" data-tab="practice" id="t-practice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>תרגול</button>
+  <button class="tab" role="tab" data-tab="dict" id="t-dict"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M9 8h6"/></svg>מילון</button>
+</div></nav>
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet px" id="sheet" hidden></div>
+<div class="runner" id="runner" hidden></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const DATA = {"start": "2026-11-16", "schedule": "Lesson number = number of days Sun-Thu (Israel time) from start to today, inclusive. Fri/Sat have no new lesson.", "words": [{"day": 1, "cat": "בסיס", "he": "שלום", "pal": {"ar": "مَرْحَبا", "tr": "מַרְחַבָּא"}, "fus": {"ar": "السَّلامُ عَلَيْكُم", "tr": "אַסַּלַאמוּ עַלַיְכֻּם"}, "tip": "עונים: אַהְלַן (أهلا) או וַעַלֵיכֻּם אִסַּלַאם."}, {"day": 1, "cat": "בסיס", "he": "כן", "pal": {"ar": "آه", "tr": "אַה"}, "fus": {"ar": "نَعَم", "tr": "נַעַם"}, "tip": "שומעים גם אַיְוַה (أيوه), בעיקר בצפון ובמצרית."}, {"day": 2, "cat": "בסיס", "he": "לא", "pal": {"ar": "لا", "tr": "לַא"}, "fus": {"ar": "لا", "tr": "לַא"}, "tip": "זהה בשתי הגרסאות. \"לַא לַא\" מהיר = ממש לא."}, {"day": 2, "cat": "בסיס", "he": "תודה", "pal": {"ar": "يِسْلَمُو", "tr": "יִסְלַמוּ"}, "fus": {"ar": "شُكْراً", "tr": "שֻׁכְּרַן"}, "tip": "גם שֻׁכְּרַן נפוץ מאוד בדיבור. יִסְלַמוּ = \"שיהיו בריאות (הידיים שלך)\"."}, {"day": 3, "cat": "שאלות", "he": "מה?", "pal": {"ar": "شو؟", "tr": "שׁוּ?"}, "fus": {"ar": "ماذا؟", "tr": "מַאדַ׳א?"}, "tip": "שׁוּ היא אחת המילים הכי נפוצות שתשמע. שׁוּ בִּדַּכּ? = מה אתה רוצה?"}, {"day": 3, "cat": "שאלות", "he": "איפה?", "pal": {"ar": "وين؟", "tr": "וֵין?"}, "fus": {"ar": "أَيْن؟", "tr": "אַיְן?"}, "tip": "וֵין רַאיֵח? = לאן אתה הולך?"}, {"day": 4, "cat": "שאלות", "he": "למה?", "pal": {"ar": "لَيْش؟", "tr": "לֵישׁ?"}, "fus": {"ar": "لِماذا؟", "tr": "לִמַאדַ׳א?"}, "tip": ""}, {"day": 4, "cat": "שאלות", "he": "מתי?", "pal": {"ar": "إِمْتى؟", "tr": "אֵמְתַא?"}, "fus": {"ar": "مَتى؟", "tr": "מַתַא?"}, "tip": ""}, {"day": 5, "cat": "מספרים", "he": "אחד (1)", "pal": {"ar": "واحَد", "tr": "וַאחַד"}, "fus": {"ar": "واحِد", "tr": "וַאחִד"}, "tip": "הספרה הערבית: ١"}, {"day": 5, "cat": "מספרים", "he": "שתיים (2)", "pal": {"ar": "تْنين", "tr": "תְנֵין"}, "fus": {"ar": "اِثْنان", "tr": "אִתְ׳נַאן"}, "tip": "בדיבור ה-ث (ת׳) הופכת ל-ת. הספרה: ٢"}, {"day": 6, "cat": "מספרים", "he": "שלוש (3)", "pal": {"ar": "تْلاتِة", "tr": "תְלַאתֶה"}, "fus": {"ar": "ثَلاثَة", "tr": "תַ׳לַאתַ׳ה"}, "tip": "הספרה: ٣"}, {"day": 6, "cat": "מספרים", "he": "ארבע (4)", "pal": {"ar": "أَرْبَعَة", "tr": "אַרְבַּעַה"}, "fus": {"ar": "أَرْبَعَة", "tr": "אַרְבַּעַה"}, "tip": "הספרה: ٤"}, {"day": 7, "cat": "מספרים", "he": "חמש (5)", "pal": {"ar": "خَمْسِة", "tr": "חַ׳מְסֶה"}, "fus": {"ar": "خَمْسَة", "tr": "חַ׳מְסַה"}, "tip": "הספרה: ٥ (נראית כמו עיגול קטן)"}, {"day": 7, "cat": "מספרים", "he": "שש (6)", "pal": {"ar": "سِتِّة", "tr": "סִתֶּה"}, "fus": {"ar": "سِتَّة", "tr": "סִתַּה"}, "tip": "הספרה: ٦"}, {"day": 8, "cat": "מספרים", "he": "שבע (7)", "pal": {"ar": "سَبْعَة", "tr": "סַבְּעַה"}, "fus": {"ar": "سَبْعَة", "tr": "סַבְּעַה"}, "tip": "הספרה: ٧"}, {"day": 8, "cat": "מספרים", "he": "שמונה (8)", "pal": {"ar": "تْمانْيِة", "tr": "תְמַאנְיֶה"}, "fus": {"ar": "ثَمانِيَة", "tr": "תַ׳מַאנִיַה"}, "tip": "הספרה: ٨"}, {"day": 9, "cat": "מספרים", "he": "תשע (9)", "pal": {"ar": "تِسْعَة", "tr": "תִסְעַה"}, "fus": {"ar": "تِسْعَة", "tr": "תִסְעַה"}, "tip": "הספרה: ٩"}, {"day": 9, "cat": "מספרים", "he": "עשר (10)", "pal": {"ar": "عَشَرَة", "tr": "עַשַׁרַה"}, "fus": {"ar": "عَشَرَة", "tr": "עַשַׁרַה"}, "tip": "הספרה: ١٠"}, {"day": 10, "cat": "ביטחון", "he": "עצור!", "pal": {"ar": "وَقِّف!", "tr": "וַקֵּף!"}, "fus": {"ar": "قِفْ!", "tr": "קִף!"}, "tip": "בדיבור שומעים גם אֻקֹף (أُقُف)."}, {"day": 10, "cat": "ביטחון", "he": "בוא הנה", "pal": {"ar": "تَعال لَهون", "tr": "תַעַאל לַהוֹן"}, "fus": {"ar": "تَعالَ إلى هُنا", "tr": "תַעַאלַ אִלַא הֻנַא"}, "tip": "הוֹן = כאן (בפלסטינית)."}, {"day": 11, "cat": "ביטחון", "he": "תעודת זהות", "pal": {"ar": "هَوِيِّة", "tr": "הַוִּיֶּה"}, "fus": {"ar": "بِطاقَة الهُوِيَّة", "tr": "בִּטַאקַת אַלְהֻוִיַּה"}, "tip": "וֵין אִלְהַוִּיֶּה? = איפה התעודה?"}, {"day": 11, "cat": "ביטחון", "he": "מחסום", "pal": {"ar": "حاجِز", "tr": "חַאגֶ׳ז"}, "fus": {"ar": "حاجِز", "tr": "חַאגִ׳ז"}, "tip": ""}, {"day": 12, "cat": "ביטחון", "he": "חייל", "pal": {"ar": "عَسْكَري", "tr": "עַסְכַּרִי"}, "fus": {"ar": "جُنْدِيّ", "tr": "גֻ׳נְדִי"}, "tip": "ברבים: עַסְכַּר (عسكر). גם \"גֵ׳יש\" שומעים הרבה."}, {"day": 12, "cat": "ביטחון", "he": "צבא", "pal": {"ar": "جيش", "tr": "גֵ׳ישׁ"}, "fus": {"ar": "جَيْش", "tr": "גַ׳יְשׁ"}, "tip": ""}, {"day": 13, "cat": "ביטחון", "he": "נשק", "pal": {"ar": "سِلاح", "tr": "סִלַאח"}, "fus": {"ar": "سِلاح", "tr": "סִלַאח"}, "tip": ""}, {"day": 13, "cat": "אזרחי", "he": "מכונית", "pal": {"ar": "سَيّارَة", "tr": "סַיַּארַה"}, "fus": {"ar": "سَيّارَة", "tr": "סַיַּארַה"}, "tip": "שומעים גם \"אוֹטוֹ\"."}, {"day": 14, "cat": "ביטחון", "he": "משטרה", "pal": {"ar": "بوليس", "tr": "בּוֹלִיס"}, "fus": {"ar": "شُرْطَة", "tr": "שֻׁרְטַה"}, "tip": ""}, {"day": 14, "cat": "ביטחון", "he": "ידיים למעלה", "pal": {"ar": "إيدَيْك لَفوق", "tr": "אִידֵיכּ לַפוֹק"}, "fus": {"ar": "اِرْفَعْ يَدَيْك", "tr": "אִרְפַע יַדַיְכּ"}, "tip": "פוֹק = למעלה, תַחְת = למטה."}, {"day": 15, "cat": "ביטוי", "he": "יאללה / קדימה", "pal": {"ar": "يَلّا", "tr": "יַאללַה"}, "fus": {"ar": "هَيّا", "tr": "הַיַּא"}, "tip": "המילה שעברה לעברית."}, {"day": 15, "cat": "ביטוי", "he": "לאט לאט", "pal": {"ar": "شْوَي شْوَي", "tr": "שְׁוַי שְׁוַי"}, "fus": {"ar": "بِبُطْء", "tr": "בִּבֻטְא"}, "tip": "שְׁוַי לבד = קצת."}, {"day": 16, "cat": "אזרחי", "he": "מים", "pal": {"ar": "مَيّ", "tr": "מַיּ"}, "fus": {"ar": "ماء", "tr": "מַאא"}, "tip": ""}, {"day": 16, "cat": "אזרחי", "he": "אוכל", "pal": {"ar": "أَكِل", "tr": "אַכֶּל"}, "fus": {"ar": "طَعام", "tr": "טַעַאם"}, "tip": ""}, {"day": 17, "cat": "אזרחי", "he": "כמה (עולה)?", "pal": {"ar": "قَدّيش؟", "tr": "אַדֵּישׁ?"}, "fus": {"ar": "كَم؟", "tr": "כַּם?"}, "tip": "בדיבור ה-ق נשמעת כמו א׳ (אַדֵּישׁ). בכפרים: כַּדֵּישׁ."}, {"day": 17, "cat": "אזרחי", "he": "כסף", "pal": {"ar": "مَصاري", "tr": "מַצַארִי"}, "fus": {"ar": "نُقود", "tr": "נֻקוּד"}, "tip": ""}, {"day": 18, "cat": "אזרחי", "he": "בית", "pal": {"ar": "بيت", "tr": "בֵּית"}, "fus": {"ar": "مَنْزِل", "tr": "מַנְזִל"}, "tip": "בערבית הרשמית גם בַּיְת (بيت)."}, {"day": 18, "cat": "אזרחי", "he": "עבודה", "pal": {"ar": "شُغُل", "tr": "שֻׁע׳ֻל"}, "fus": {"ar": "عَمَل", "tr": "עַמַל"}, "tip": ""}, {"day": 19, "cat": "משפחה", "he": "אבא שלי", "pal": {"ar": "أَبوي", "tr": "אַבּוּי"}, "fus": {"ar": "أَبي", "tr": "אַבִּי"}, "tip": "אַבּוּ + שם = אבא של... (אבו עלי)."}, {"day": 19, "cat": "משפחה", "he": "אמא שלי", "pal": {"ar": "إِمّي", "tr": "אִמִּי"}, "fus": {"ar": "أُمّي", "tr": "אֻמִּי"}, "tip": ""}, {"day": 20, "cat": "משפחה", "he": "אח שלי", "pal": {"ar": "أَخوي", "tr": "אַחוּי"}, "fus": {"ar": "أَخي", "tr": "אַחִ׳י"}, "tip": "\"יַא אַחוּי\" = אחי (גם לחבר)."}, {"day": 20, "cat": "משפחה", "he": "אחות שלי", "pal": {"ar": "أُخْتي", "tr": "אֻחְ׳תִי"}, "fus": {"ar": "أُخْتي", "tr": "אֻחְ׳תִי"}, "tip": ""}, {"day": 21, "cat": "זמן", "he": "היום", "pal": {"ar": "اليوم", "tr": "אִלְיוֹם"}, "fus": {"ar": "اليَوْم", "tr": "אַלְיַוְם"}, "tip": ""}, {"day": 21, "cat": "זמן", "he": "מחר", "pal": {"ar": "بُكْرا", "tr": "בֻּכְּרַא"}, "fus": {"ar": "غَداً", "tr": "עַ׳דַן"}, "tip": ""}, {"day": 22, "cat": "זמן", "he": "אתמול", "pal": {"ar": "مْبارِح", "tr": "מְבַּארֶח"}, "fus": {"ar": "أَمْس", "tr": "אַמְס"}, "tip": ""}, {"day": 22, "cat": "זמן", "he": "עכשיו", "pal": {"ar": "هَلَّق", "tr": "הַלַּא"}, "fus": {"ar": "الآن", "tr": "אַלְאַאן"}, "tip": "ה-ق בסוף כמעט לא נשמעת."}, {"day": 23, "cat": "גופים", "he": "אני", "pal": {"ar": "أَنا", "tr": "אַנַא"}, "fus": {"ar": "أَنا", "tr": "אַנַא"}, "tip": ""}, {"day": 23, "cat": "גופים", "he": "אתה", "pal": {"ar": "إِنْتَ", "tr": "אִנְתֶ"}, "fus": {"ar": "أَنْتَ", "tr": "אַנְתַ"}, "tip": "לאישה: אִנְתִי."}, {"day": 24, "cat": "גופים", "he": "הוא", "pal": {"ar": "هُوِّ", "tr": "הֻוֶּה"}, "fus": {"ar": "هُوَ", "tr": "הֻוַ"}, "tip": "היא: הִיֶּה."}, {"day": 24, "cat": "גופים", "he": "הם", "pal": {"ar": "هُمِّ", "tr": "הֻמֶּה"}, "fus": {"ar": "هُم", "tr": "הֻם"}, "tip": ""}, {"day": 25, "cat": "תיאור", "he": "טוב", "pal": {"ar": "مْنيح", "tr": "מְנִיח"}, "fus": {"ar": "جَيِّد", "tr": "גַ׳יִּד"}, "tip": ""}, {"day": 25, "cat": "תיאור", "he": "לא טוב", "pal": {"ar": "مِش مْنيح", "tr": "מִשׁ מְנִיח"}, "fus": {"ar": "سَيِّئ", "tr": "סַיִּא"}, "tip": "מִשׁ = לא (לפני תואר)."}, {"day": 26, "cat": "ביטוי", "he": "אני רוצה", "pal": {"ar": "بَدّي", "tr": "בַּדִּי"}, "fus": {"ar": "أُريد", "tr": "אֻרִיד"}, "tip": "בַּדַּכּ = אתה רוצה. שׁוּ בַּדַּכּ? = מה אתה רוצה?"}, {"day": 26, "cat": "ביטוי", "he": "יש / אין", "pal": {"ar": "في / ما في", "tr": "פִי / מַא פִי"}, "fus": {"ar": "يوجَد / لا يوجَد", "tr": "יוּגַ׳ד / לַא יוּגַ׳ד"}, "tip": "מַא פִי מֻשְׁכִּלֶה = אין בעיה."}, {"day": 27, "cat": "בסיס", "he": "מה שלומך?", "pal": {"ar": "كيفَك؟", "tr": "כִּיפַכּ?"}, "fus": {"ar": "كَيْفَ حالُك؟", "tr": "כַּיְפַ חַאלֻכּ?"}, "tip": "לאישה: כִּיפֶכּ?"}, {"day": 27, "cat": "בסיס", "he": "בסדר, תודה לאל", "pal": {"ar": "مْنيح، الحَمْدِلله", "tr": "מְנִיח, אִלְחַמְדִלְלַה"}, "fus": {"ar": "بِخَيْر، الحَمْدُ لله", "tr": "בִּחַ׳יְר, אַלְחַמְדֻ לִלַּה"}, "tip": ""}, {"day": 28, "cat": "ביטחון", "he": "סכנה", "pal": {"ar": "خَطَر", "tr": "חַ׳טַר"}, "fus": {"ar": "خَطَر", "tr": "חַ׳טַר"}, "tip": ""}, {"day": 28, "cat": "ביטחון", "he": "פצוע", "pal": {"ar": "مَجْروح", "tr": "מַגְ׳רוּח"}, "fus": {"ar": "مُصاب", "tr": "מֻצַאבּ"}, "tip": ""}, {"day": 29, "cat": "ביטחון", "he": "יורים", "pal": {"ar": "بِطُخّوا", "tr": "בִּטֻחּוּ"}, "fus": {"ar": "إِطْلاق نار", "tr": "אִטְלַאק נַאר"}, "tip": "טַחְ׳ = ירייה (בדיבור). נַאר = אש."}, {"day": 29, "cat": "ביטחון", "he": "תיזהר!", "pal": {"ar": "دير بالَك!", "tr": "דִיר בַּאלַכּ!"}, "fus": {"ar": "اِنْتَبِه!", "tr": "אִנְתַבִּה!"}, "tip": "מילולית: \"שים את דעתך\"."}, {"day": 30, "cat": "ביטוי", "he": "שקט! / שתוק!", "pal": {"ar": "اُسْكُت!", "tr": "אֻסְכֹּת!"}, "fus": {"ar": "اُصْمُتْ!", "tr": "אֻצְמֻת!"}, "tip": ""}, {"day": 30, "cat": "ביטוי", "he": "מה קרה?", "pal": {"ar": "شو صار؟", "tr": "שׁוּ צַאר?"}, "fus": {"ar": "ماذا حَدَث؟", "tr": "מַאדַ׳א חַדַת׳?"}, "tip": ""}, {"day": 31, "cat": "נימוס", "he": "בבקשה (בפנייה)", "pal": {"ar": "لَو سَمَحْت", "tr": "לוֹ סַמַחְת"}, "fus": {"ar": "مِنْ فَضْلِك", "tr": "מִן פַצְ׳לִכּ"}, "tip": "פותחים איתה שאלה לאדם זר: לוֹ סַמַחְת, וֵין...?"}, {"day": 31, "cat": "נימוס", "he": "סליחה (התנצלות)", "pal": {"ar": "مِتْأَسِّف", "tr": "מִתְאַסֶּף"}, "fus": {"ar": "آسِف", "tr": "אַאסִף"}, "tip": "שומעים גם סַאמֶחְנִי (سامحني) = סלח לי."}, {"day": 32, "cat": "נימוס", "he": "על לא דבר", "pal": {"ar": "وَلا يْهِمَّك", "tr": "וַלַא יְהִמַּכּ"}, "fus": {"ar": "عَفْواً", "tr": "עַפְוַן"}, "tip": "מילולית: \"שזה לא ידאיג אותך\"."}, {"day": 32, "cat": "נימוס", "he": "ברוך הבא", "pal": {"ar": "أَهْلا وسَهْلا", "tr": "אַהְלַן וּסַהְלַן"}, "fus": {"ar": "أَهْلاً وَسَهْلاً", "tr": "אַהְלַן וַסַהְלַן"}, "tip": "עונים: אַהְלַן פִיכּ."}, {"day": 33, "cat": "נימוס", "he": "להתראות", "pal": {"ar": "مَعَ السَّلامِة", "tr": "מַעַ אִסַּלַאמֶה"}, "fus": {"ar": "مَعَ السَّلامَة", "tr": "מַעַ אַסַּלַאמַה"}, "tip": "מילולית: \"לך בשלום\"."}, {"day": 33, "cat": "נימוס", "he": "בוקר טוב", "pal": {"ar": "صَباح الخير", "tr": "צַבַּאח אִלְחֵ׳יר"}, "fus": {"ar": "صَباحُ الخَيْر", "tr": "צַבַּאחֻ אַלְחַ׳יְר"}, "tip": "עונים: צַבַּאח אִנּוּר (בוקר האור)."}, {"day": 34, "cat": "נימוס", "he": "ערב טוב", "pal": {"ar": "مَسا الخير", "tr": "מַסַא אִלְחֵ׳יר"}, "fus": {"ar": "مَساءُ الخَيْر", "tr": "מַסַאאֻ אַלְחַ׳יְר"}, "tip": "עונים: מַסַא אִנּוּר."}, {"day": 34, "cat": "היכרות", "he": "מה שמך?", "pal": {"ar": "شو اسْمَك؟", "tr": "שׁוּ אִסְמַכּ?"}, "fus": {"ar": "ما اسْمُك؟", "tr": "מַא אִסְמֻכּ?"}, "tip": "לאישה: שׁוּ אִסְמֶכּ?"}, {"day": 35, "cat": "היכרות", "he": "שמי...", "pal": {"ar": "اسْمي", "tr": "אִסְמִי"}, "fus": {"ar": "اِسْمي", "tr": "אִסְמִי"}, "tip": "אִסְמִי אִילַאן = שמי אילן."}, {"day": 35, "cat": "היכרות", "he": "מאיפה אתה?", "pal": {"ar": "مِن وين إنْتَ؟", "tr": "מִן וֵין אִנְתֶ?"}, "fus": {"ar": "مِنْ أَيْنَ أَنْت؟", "tr": "מִן אַיְנַ אַנְת?"}, "tip": ""}, {"day": 36, "cat": "שאלות", "he": "מי?", "pal": {"ar": "مين؟", "tr": "מִין?"}, "fus": {"ar": "مَنْ؟", "tr": "מַן?"}, "tip": "מִין הַאד? = מי זה?"}, {"day": 36, "cat": "שאלות", "he": "איך?", "pal": {"ar": "كيف؟", "tr": "כִּיף?"}, "fus": {"ar": "كَيْف؟", "tr": "כַּיְף?"}, "tip": ""}, {"day": 37, "cat": "שיחה", "he": "אני לא מבין", "pal": {"ar": "مِش فاهِم", "tr": "מִשׁ פַאהֶם"}, "fus": {"ar": "لا أَفْهَم", "tr": "לַא אַפְהַם"}, "tip": "אישה אומרת: מִשׁ פַאהְמֶה."}, {"day": 37, "cat": "שיחה", "he": "אתה מדבר עברית?", "pal": {"ar": "بْتِحْكي عِبْري؟", "tr": "בְּתִחְכִּי עִבְרִי?"}, "fus": {"ar": "هَلْ تَتَكَلَّمُ العِبْرِيَّة؟", "tr": "הַל תַתַכַּלַּמֻ אַלְעִבְרִיַּה?"}, "tip": "אנגלית = אִנְגְלִיזִי."}, {"day": 38, "cat": "ביטחון", "he": "תעצור את הרכב", "pal": {"ar": "وَقِّف السَّيّارَة", "tr": "וַקֵּף אִסַּיַּארַה"}, "fus": {"ar": "أَوْقِفِ السَّيّارَة", "tr": "אַוְקִפִ אַסַּיַּארַה"}, "tip": ""}, {"day": 38, "cat": "ביטחון", "he": "תפתח", "pal": {"ar": "اِفْتَح", "tr": "אִפְתַח"}, "fus": {"ar": "اِفْتَحْ", "tr": "אִפְתַח"}, "tip": "אִפְתַח אִלשַּׁנְטַה = תפתח את התיק / תא המטען."}, {"day": 39, "cat": "ביטחון", "he": "תרד (מהרכב)", "pal": {"ar": "اِنْزِل", "tr": "אִנְזֶל"}, "fus": {"ar": "اِنْزِلْ", "tr": "אִנְזִל"}, "tip": ""}, {"day": 39, "cat": "ביטחון", "he": "חכה", "pal": {"ar": "اِسْتَنّى", "tr": "אִסְתַנַּא"}, "fus": {"ar": "اِنْتَظِرْ", "tr": "אִנְתַטִ׳ר"}, "tip": "אִסְתַנַּא שְׁוַי = חכה רגע."}, {"day": 40, "cat": "ביטחון", "he": "אל תזוז!", "pal": {"ar": "لا تِتْحَرَّك!", "tr": "לַא תִתְחַרַּכּ!"}, "fus": {"ar": "لا تَتَحَرَّكْ!", "tr": "לַא תַתַחַרַּכּ!"}, "tip": ""}, {"day": 40, "cat": "ביטחון", "he": "לך מפה", "pal": {"ar": "روح مِن هون", "tr": "רוּח מִן הוֹן"}, "fus": {"ar": "اِذْهَبْ مِنْ هُنا", "tr": "אִד׳הַבּ מִן הֻנַא"}, "tip": "רוּח = לך. הוֹן = כאן."}, {"day": 41, "cat": "קניות", "he": "לחם", "pal": {"ar": "خُبِز", "tr": "חֻ׳בֶּז"}, "fus": {"ar": "خُبْز", "tr": "חֻ׳בְּז"}, "tip": ""}, {"day": 41, "cat": "קניות", "he": "חנות", "pal": {"ar": "دُكّان", "tr": "דֻכַּאן"}, "fus": {"ar": "مَتْجَر", "tr": "מַתְגַ׳ר"}, "tip": ""}, {"day": 42, "cat": "קניות", "he": "יקר", "pal": {"ar": "غالي", "tr": "עַ׳אלִי"}, "fus": {"ar": "غالٍ", "tr": "עַ׳אלִן"}, "tip": "כְּתִיר עַ׳אלִי! = יקר מדי!"}, {"day": 42, "cat": "קניות", "he": "זול", "pal": {"ar": "رْخيص", "tr": "רְחִ׳יץ"}, "fus": {"ar": "رَخيص", "tr": "רַחִ׳יץ"}, "tip": ""}, {"day": 43, "cat": "קניות", "he": "קפה", "pal": {"ar": "قَهْوِة", "tr": "אַהְוֶה"}, "fus": {"ar": "قَهْوَة", "tr": "קַהְוַה"}, "tip": "שוב ה-ق נשמעת כמו א׳."}, {"day": 43, "cat": "קניות", "he": "תה", "pal": {"ar": "شاي", "tr": "שַׁאי"}, "fus": {"ar": "شاي", "tr": "שַׁאי"}, "tip": "שַׁאי בִּנַעְנַע = תה עם נענע."}, {"day": 44, "cat": "כיוונים", "he": "ימינה", "pal": {"ar": "يَمين", "tr": "יַמִין"}, "fus": {"ar": "يَمين", "tr": "יַמִין"}, "tip": ""}, {"day": 44, "cat": "כיוונים", "he": "שמאלה", "pal": {"ar": "شْمال", "tr": "שְׁמַאל"}, "fus": {"ar": "يَسار", "tr": "יַסַאר"}, "tip": "בפלסטינית שְׁמַאל = שמאל, לא צפון."}, {"day": 45, "cat": "כיוונים", "he": "ישר", "pal": {"ar": "دُغْري", "tr": "דֻע׳רִי"}, "fus": {"ar": "مُباشَرَة", "tr": "מֻבַּאשַׁרַה"}, "tip": ""}, {"day": 45, "cat": "כיוונים", "he": "קרוב / רחוק", "pal": {"ar": "قَريب / بْعيد", "tr": "אַרִיבּ / בְּעִיד"}, "fus": {"ar": "قَريب / بَعيد", "tr": "קַרִיבּ / בַּעִיד"}, "tip": ""}, {"day": 46, "cat": "זמן", "he": "שעה", "pal": {"ar": "ساعَة", "tr": "סַאעַה"}, "fus": {"ar": "ساعَة", "tr": "סַאעַה"}, "tip": "אַדֵּישׁ אִסַּאעַה? = מה השעה? סַאעַה = גם שעון."}, {"day": 46, "cat": "זמן", "he": "דקה / רגע", "pal": {"ar": "دَقيقَة", "tr": "דַאִיאַה"}, "fus": {"ar": "دَقيقَة", "tr": "דַקִיקַה"}, "tip": "דַאִיאַה! = רגע!"}, {"day": 47, "cat": "זמן", "he": "בוקר", "pal": {"ar": "الصُّبُح", "tr": "אִצֻּבֻּח"}, "fus": {"ar": "الصَّباح", "tr": "אַצַּבַּאח"}, "tip": ""}, {"day": 47, "cat": "זמן", "he": "לילה", "pal": {"ar": "الليل", "tr": "אִלְלֵיל"}, "fus": {"ar": "اللَّيْل", "tr": "אַלְלַיְל"}, "tip": ""}, {"day": 48, "cat": "בריאות", "he": "רופא", "pal": {"ar": "دُكْتور", "tr": "דֻכְּתוֹר"}, "fus": {"ar": "طَبيب", "tr": "טַבִּיבּ"}, "tip": ""}, {"day": 48, "cat": "בריאות", "he": "בית חולים", "pal": {"ar": "مُسْتَشْفى", "tr": "מֻסְתַשְׁפַא"}, "fus": {"ar": "مُسْتَشْفى", "tr": "מֻסְתַשְׁפַא"}, "tip": ""}, {"day": 49, "cat": "בריאות", "he": "כואב לי", "pal": {"ar": "بيوجَعْني", "tr": "בִּיוּגַ׳עְנִי"}, "fus": {"ar": "يُؤْلِمُني", "tr": "יֻאְלִמֻנִי"}, "tip": "רַאסִי בִּיוּגַ׳עְנִי = הראש כואב לי."}, {"day": 49, "cat": "בריאות", "he": "חולה", "pal": {"ar": "عَيّان", "tr": "עַיַּאן"}, "fus": {"ar": "مَريض", "tr": "מַרִיצ׳"}, "tip": ""}, {"day": 50, "cat": "ביטחון", "he": "אמבולנס", "pal": {"ar": "إسْعاف", "tr": "אִסְעַאף"}, "fus": {"ar": "سَيّارَة إسْعاف", "tr": "סַיַּארַת אִסְעַאף"}, "tip": "הַלַאל אִלְאַחְמַר = הסהר האדום."}, {"day": 50, "cat": "ביטחון", "he": "הצילו! / עזרה!", "pal": {"ar": "ساعْدوني!", "tr": "סַאעְדוּנִי!"}, "fus": {"ar": "النَّجْدَة!", "tr": "אַנַּגְ׳דַה!"}, "tip": ""}, {"day": 51, "cat": "ביטחון", "he": "פיצוץ", "pal": {"ar": "اِنْفِجار", "tr": "אִנְפִגַ׳אר"}, "fus": {"ar": "اِنْفِجار", "tr": "אִנְפִגַ׳אר"}, "tip": ""}, {"day": 51, "cat": "ביטחון", "he": "אבן / אבנים", "pal": {"ar": "حَجَر / حْجار", "tr": "חַגַ׳ר / חְגַ׳אר"}, "fus": {"ar": "حَجَر / حِجارَة", "tr": "חַגַ׳ר / חִגַ׳ארַה"}, "tip": ""}, {"day": 52, "cat": "ביטחון", "he": "אסיר", "pal": {"ar": "أَسير", "tr": "אַסִיר"}, "fus": {"ar": "مُعْتَقَل", "tr": "מֻעְתַקַל"}, "tip": "אַסִיר = אסיר ביטחוני בשיח הפלסטיני. מֻעְתַקַל = עציר."}, {"day": 52, "cat": "ביטחון", "he": "כלא", "pal": {"ar": "سِجِن", "tr": "סִגֶ׳ן"}, "fus": {"ar": "سِجْن", "tr": "סִגְ׳ן"}, "tip": ""}, {"day": 53, "cat": "חדשות", "he": "מתנחל", "pal": {"ar": "مُسْتَوْطِن", "tr": "מֻסְתַוְטֶן"}, "fus": {"ar": "مُسْتَوْطِن", "tr": "מֻסְתַוְטִן"}, "tip": "מֻסְתַוְטַנַה = התנחלות."}, {"day": 53, "cat": "חדשות", "he": "כיבוש", "pal": {"ar": "اِحْتِلال", "tr": "אִחְתִלַאל"}, "fus": {"ar": "اِحْتِلال", "tr": "אִחְתִלַאל"}, "tip": "נשמע הרבה בחדשות ובנאומים."}, {"day": 54, "cat": "חדשות", "he": "גדר / חומה", "pal": {"ar": "جِدار", "tr": "גִ׳דַאר"}, "fus": {"ar": "جِدار", "tr": "גִ׳דַאר"}, "tip": "אִלְגִ׳דַאר = גדר ההפרדה."}, {"day": 54, "cat": "חדשות", "he": "גבול", "pal": {"ar": "حُدود", "tr": "חֻדוּד"}, "fus": {"ar": "حُدود", "tr": "חֻדוּד"}, "tip": ""}, {"day": 55, "cat": "משפחה", "he": "ילד / בן", "pal": {"ar": "وَلَد", "tr": "וַלַד"}, "fus": {"ar": "وَلَد", "tr": "וַלַד"}, "tip": "ברבים: וְלַאד = ילדים."}, {"day": 55, "cat": "משפחה", "he": "בת / ילדה", "pal": {"ar": "بِنْت", "tr": "בִּנְת"}, "fus": {"ar": "بِنْت", "tr": "בִּנְת"}, "tip": ""}, {"day": 56, "cat": "משפחה", "he": "אישה (רעיה)", "pal": {"ar": "مَرَة", "tr": "מַרַה"}, "fus": {"ar": "زَوْجَة", "tr": "זַוְגַ׳ה"}, "tip": "מַרְתִי = אשתי."}, {"day": 56, "cat": "משפחה", "he": "בעל", "pal": {"ar": "جوز", "tr": "גוֹז"}, "fus": {"ar": "زَوْج", "tr": "זַוְג׳"}, "tip": "גוֹזְהַא = בעלה."}, {"day": 57, "cat": "משפחה", "he": "חבר", "pal": {"ar": "صاحِب", "tr": "צַאחֶבּ"}, "fus": {"ar": "صَديق", "tr": "צַדִיק"}, "tip": ""}, {"day": 57, "cat": "משפחה", "he": "שכן", "pal": {"ar": "جار", "tr": "גַ׳אר"}, "fus": {"ar": "جار", "tr": "גַ׳אר"}, "tip": ""}, {"day": 58, "cat": "טלפון", "he": "טלפון נייד", "pal": {"ar": "جَوّال", "tr": "גַ׳וַּאל"}, "fus": {"ar": "هاتِف", "tr": "הַאתִף"}, "tip": "שומעים גם מוֹבַּייל."}, {"day": 58, "cat": "טלפון", "he": "תתקשר אליי", "pal": {"ar": "دُقِّلّي", "tr": "דֻאִּלִּי"}, "fus": {"ar": "اِتَّصِلْ بي", "tr": "אִתַּצִל בִּי"}, "tip": "מילולית: \"דפוק לי\"."}, {"day": 59, "cat": "טלפון", "he": "הלו (בטלפון)", "pal": {"ar": "أَلو", "tr": "אַלוֹ"}, "fus": {"ar": "مَرْحَباً", "tr": "מַרְחַבַּן"}, "tip": ""}, {"day": 59, "cat": "טלפון", "he": "מי מדבר?", "pal": {"ar": "مين مَعي؟", "tr": "מִין מַעִי?"}, "fus": {"ar": "مَنْ يَتَكَلَّم؟", "tr": "מַן יַתַכַּלַּם?"}, "tip": "מילולית: \"מי איתי?\""}, {"day": 60, "cat": "גופים", "he": "אנחנו", "pal": {"ar": "إِحْنا", "tr": "אִחְנַא"}, "fus": {"ar": "نَحْنُ", "tr": "נַחְנֻ"}, "tip": ""}, {"day": 60, "cat": "גופים", "he": "אתם", "pal": {"ar": "إِنْتو", "tr": "אִנְתוּ"}, "fus": {"ar": "أَنْتُم", "tr": "אַנְתֻם"}, "tip": ""}, {"day": 61, "cat": "גופים", "he": "היא", "pal": {"ar": "هِيِّ", "tr": "הִיֶּה"}, "fus": {"ar": "هِيَ", "tr": "הִיַ"}, "tip": ""}, {"day": 61, "cat": "גופים", "he": "את", "pal": {"ar": "إِنْتِ", "tr": "אִנְתִי"}, "fus": {"ar": "أَنْتِ", "tr": "אַנְתִ"}, "tip": ""}, {"day": 62, "cat": "תיאור", "he": "גדול", "pal": {"ar": "كْبير", "tr": "כְּבִּיר"}, "fus": {"ar": "كَبير", "tr": "כַּבִּיר"}, "tip": ""}, {"day": 62, "cat": "תיאור", "he": "קטן", "pal": {"ar": "زْغير", "tr": "זְע׳ִיר"}, "fus": {"ar": "صَغير", "tr": "צַע׳ִיר"}, "tip": ""}, {"day": 63, "cat": "תיאור", "he": "הרבה", "pal": {"ar": "كْتير", "tr": "כְּתִיר"}, "fus": {"ar": "كَثير", "tr": "כַּת׳ִיר"}, "tip": "שֻׁכְּרַן כְּתִיר = תודה רבה."}, {"day": 63, "cat": "תיאור", "he": "מהר", "pal": {"ar": "بْسُرْعَة", "tr": "בְּסֻרְעַה"}, "fus": {"ar": "بِسُرْعَة", "tr": "בִּסֻרְעַה"}, "tip": "יַאללַה בְּסֻרְעַה! = קדימה, מהר!"}, {"day": 64, "cat": "תיאור", "he": "חם", "pal": {"ar": "شوب", "tr": "שׁוֹבּ"}, "fus": {"ar": "حارّ", "tr": "חַארּ"}, "tip": "על מזג האוויר: אִדִּנְיַא שׁוֹבּ."}, {"day": 64, "cat": "תיאור", "he": "קר", "pal": {"ar": "بَرْد", "tr": "בַּרְד"}, "fus": {"ar": "بارِد", "tr": "בַּארִד"}, "tip": "אַנַא בַּרְדַאן = קר לי."}, {"day": 65, "cat": "תיאור", "he": "חדש / ישן", "pal": {"ar": "جْديد / قَديم", "tr": "גְ׳דִיד / אַדִים"}, "fus": {"ar": "جَديد / قَديم", "tr": "גַ׳דִיד / קַדִים"}, "tip": ""}, {"day": 65, "cat": "תיאור", "he": "יפה", "pal": {"ar": "حِلو", "tr": "חִלוּ"}, "fus": {"ar": "جَميل", "tr": "גַ׳מִיל"}, "tip": "חִלוּ = גם מתוק."}, {"day": 66, "cat": "פעלים", "he": "אני הולך", "pal": {"ar": "رايِح", "tr": "רַאיֶח"}, "fus": {"ar": "أَذْهَب", "tr": "אַד׳הַבּ"}, "tip": "אישה: רַאיְחַה."}, {"day": 66, "cat": "פעלים", "he": "אני בא", "pal": {"ar": "جايّ", "tr": "גַ׳איּ"}, "fus": {"ar": "آتي", "tr": "אַאתִי"}, "tip": ""}, {"day": 67, "cat": "פעלים", "he": "אני אוכל", "pal": {"ar": "بوكِل", "tr": "בּוֹכֶּל"}, "fus": {"ar": "آكُل", "tr": "אַאכֻּל"}, "tip": ""}, {"day": 67, "cat": "פעלים", "he": "אני שותה", "pal": {"ar": "بَشْرَب", "tr": "בַּשְׁרַבּ"}, "fus": {"ar": "أَشْرَب", "tr": "אַשְׁרַבּ"}, "tip": ""}, {"day": 68, "cat": "פעלים", "he": "אני יודע", "pal": {"ar": "بَعْرِف", "tr": "בַּעְרֶף"}, "fus": {"ar": "أَعْرِف", "tr": "אַעְרִף"}, "tip": "מַא בַּעְרֶף = לא יודע."}, {"day": 68, "cat": "פעלים", "he": "ראיתי", "pal": {"ar": "شُفِت", "tr": "שֻׁפֶת"}, "fus": {"ar": "رَأَيْتُ", "tr": "רַאַיְתֻ"}, "tip": "שֻׁפְתוֹ? = ראית אותו?"}, {"day": 69, "cat": "פעלים", "he": "שמעתי", "pal": {"ar": "سْمِعِت", "tr": "סְמִעֶת"}, "fus": {"ar": "سَمِعْتُ", "tr": "סַמִעְתֻ"}, "tip": ""}, {"day": 69, "cat": "פעלים", "he": "תדבר", "pal": {"ar": "اِحْكي", "tr": "אִחְכִּי"}, "fus": {"ar": "تَكَلَّمْ", "tr": "תַכַּלַּם"}, "tip": "אִחְכִּי עַרַבִּי = דבר ערבית."}, {"day": 70, "cat": "ביטחון", "he": "מבוקש", "pal": {"ar": "مَطْلوب", "tr": "מַטְלוּבּ"}, "fus": {"ar": "مَطْلوب", "tr": "מַטְלוּבּ"}, "tip": ""}, {"day": 70, "cat": "ביטחון", "he": "חיפוש (בדיקה)", "pal": {"ar": "تَفْتيش", "tr": "תַפְתִישׁ"}, "fus": {"ar": "تَفْتيش", "tr": "תַפְתִישׁ"}, "tip": ""}, {"day": 71, "cat": "ביטחון", "he": "נעצר", "pal": {"ar": "اِنْمَسَك", "tr": "אִנְמַסַכּ"}, "fus": {"ar": "اُعْتُقِلَ", "tr": "אֻעְתֻקִלַ"}, "tip": ""}, {"day": 71, "cat": "ביטחון", "he": "פשיטה", "pal": {"ar": "اِقْتِحام", "tr": "אִקְתִחַאם"}, "fus": {"ar": "اِقْتِحام", "tr": "אִקְתִחַאם"}, "tip": "נשמע בחדשות: אִקְתִחַאם גֵ׳נִין = פשיטה על ג׳נין."}, {"day": 72, "cat": "ביטחון", "he": "ג׳יפ צבאי", "pal": {"ar": "جيب", "tr": "גִ׳יבּ"}, "fus": {"ar": "سَيّارَة عَسْكَرِيَّة", "tr": "סַיַּארַה עַסְכַּרִיַּה"}, "tip": ""}, {"day": 72, "cat": "ביטחון", "he": "מסוק", "pal": {"ar": "هيليكوبْتَر", "tr": "הֶלִיכּוֹבְּתַר"}, "fus": {"ar": "مَرْوَحِيَّة", "tr": "מַרְוַחִיַּה"}, "tip": ""}, {"day": 73, "cat": "ביטחון", "he": "מטוס", "pal": {"ar": "طَيّارَة", "tr": "טַיַּארַה"}, "fus": {"ar": "طائِرَة", "tr": "טַאאִרַה"}, "tip": ""}, {"day": 73, "cat": "ביטחון", "he": "רחפן", "pal": {"ar": "زَنّانَة", "tr": "זַנַּאנַה"}, "fus": {"ar": "طائِرَة مُسَيَّرَة", "tr": "טַאאִרַה מֻסַיַּרַה"}, "tip": "זַנַּאנַה = \"המזמזמת\"."}, {"day": 74, "cat": "ביטחון", "he": "טיל / רקטה", "pal": {"ar": "صاروخ", "tr": "צַארוּח׳"}, "fus": {"ar": "صاروخ", "tr": "צַארוּח׳"}, "tip": "ברבים: צְוַארִיח׳."}, {"day": 74, "cat": "ביטחון", "he": "אזעקה", "pal": {"ar": "صَفّارَة", "tr": "צַפַּארַה"}, "fus": {"ar": "صَفّارَة إنْذار", "tr": "צַפַּארַת אִנְד׳ַאר"}, "tip": ""}, {"day": 75, "cat": "ביטחון", "he": "מת", "pal": {"ar": "ميِّت", "tr": "מַיֶּת"}, "fus": {"ar": "مَيِّت", "tr": "מַיִּת"}, "tip": ""}, {"day": 75, "cat": "ביטחון", "he": "שהיד", "pal": {"ar": "شَهيد", "tr": "שַׁהִיד"}, "fus": {"ar": "شَهيد", "tr": "שַׁהִיד"}, "tip": "כינוי למי שנהרג במאבק. ברבים: שֻׁהַדַאא."}, {"day": 76, "cat": "ביטוי", "he": "בסדר / אוקיי", "pal": {"ar": "ماشي", "tr": "מַאשִׁי"}, "fus": {"ar": "حَسَناً", "tr": "חַסַנַן"}, "tip": ""}, {"day": 76, "cat": "ביטוי", "he": "אם ירצה השם", "pal": {"ar": "إن شاء الله", "tr": "אִנְשַׁאללַה"}, "fus": {"ar": "إنْ شاءَ الله", "tr": "אִן שַׁאאַ אַללַּה"}, "tip": "לפעמים פירושו בעצם \"כנראה שלא\"."}, {"day": 77, "cat": "ביטוי", "he": "באמת / נשבע", "pal": {"ar": "والله", "tr": "וַאללַה"}, "fus": {"ar": "والله", "tr": "וַאללַּהִ"}, "tip": "וַאללַה? = באמת?"}, {"day": 77, "cat": "ביטוי", "he": "חבל / מסכן", "pal": {"ar": "يا حَرام", "tr": "יַא חַרַאם"}, "fus": {"ar": "يا لِلأَسَف", "tr": "יַא לִלְאַסַף"}, "tip": "חַרַאם לבד = אסור (דתית)."}, {"day": 78, "cat": "ביטוי", "he": "מזל טוב", "pal": {"ar": "مَبْروك", "tr": "מַבְּרוּכּ"}, "fus": {"ar": "مَبْروك", "tr": "מַבְּרוּכּ"}, "tip": "עונים: אַללַּה יְבַּארֶכּ פִיכּ."}, {"day": 78, "cat": "ביטוי", "he": "בתיאבון", "pal": {"ar": "صَحْتين", "tr": "צַחְתֵין"}, "fus": {"ar": "بِالهَناءِ وَالشِّفاء", "tr": "בִּאלְהַנַאאִ וַאשִּׁפַאא"}, "tip": "מילולית: \"שתי בריאויות\"."}, {"day": 79, "cat": "ביטוי", "he": "מסכן (אדם)", "pal": {"ar": "مِسْكين", "tr": "מִסְכִּין"}, "fus": {"ar": "مِسْكين", "tr": "מִסְכִּין"}, "tip": "המילה העברית \"מסכן\" באה מכאן."}, {"day": 79, "cat": "ביטוי", "he": "בושה!", "pal": {"ar": "عَيب!", "tr": "עֵיבּ!"}, "fus": {"ar": "عَيْب!", "tr": "עַיְבּ!"}, "tip": "עֵיבּ עַלֵיכּ = תתבייש."}, {"day": 80, "cat": "עבודה", "he": "פועל", "pal": {"ar": "عامِل", "tr": "עַאמֶל"}, "fus": {"ar": "عامِل", "tr": "עַאמִל"}, "tip": "ברבים: עֻמַּאל."}, {"day": 80, "cat": "עבודה", "he": "אישור / היתר", "pal": {"ar": "تَصْريح", "tr": "תַצְרִיח"}, "fus": {"ar": "تَصْريح", "tr": "תַצְרִיח"}, "tip": "וֵין אִתַּצְרִיח? = איפה ההיתר?"}, {"day": 81, "cat": "עבודה", "he": "משכורת", "pal": {"ar": "مَعاش", "tr": "מַעַאשׁ"}, "fus": {"ar": "راتِب", "tr": "רַאתִבּ"}, "tip": ""}, {"day": 81, "cat": "עבודה", "he": "בוס / בעל מקצוע", "pal": {"ar": "مْعَلِّم", "tr": "מְעַלֶּם"}, "fus": {"ar": "مُدير", "tr": "מֻדִיר"}, "tip": "מְעַלֶּם = גם מורה."}, {"day": 82, "cat": "תחבורה", "he": "אוטובוס", "pal": {"ar": "باص", "tr": "בַּאץ"}, "fus": {"ar": "حافِلَة", "tr": "חַאפִלַה"}, "tip": ""}, {"day": 82, "cat": "תחבורה", "he": "כביש / רחוב", "pal": {"ar": "شارِع", "tr": "שַׁארֶע"}, "fus": {"ar": "طَريق", "tr": "טַרִיק"}, "tip": ""}, {"day": 83, "cat": "תחבורה", "he": "נהג", "pal": {"ar": "سَوّاق", "tr": "סַוַּאא"}, "fus": {"ar": "سائِق", "tr": "סַאאִק"}, "tip": ""}, {"day": 83, "cat": "תחבורה", "he": "דלק", "pal": {"ar": "بَنْزين", "tr": "בַּנְזִין"}, "fus": {"ar": "وَقود", "tr": "וַקוּד"}, "tip": ""}, {"day": 84, "cat": "מקומות", "he": "כפר", "pal": {"ar": "بَلَد", "tr": "בַּלַד"}, "fus": {"ar": "قَرْيَة", "tr": "קַרְיַה"}, "tip": "בַּלַדִי = הכפר שלי."}, {"day": 84, "cat": "מקומות", "he": "עיר", "pal": {"ar": "مَدينِة", "tr": "מַדִינֶה"}, "fus": {"ar": "مَدينَة", "tr": "מַדִינַה"}, "tip": ""}, {"day": 85, "cat": "מקומות", "he": "מסגד", "pal": {"ar": "جامِع", "tr": "גַ׳אמֶע"}, "fus": {"ar": "مَسْجِد", "tr": "מַסְגִ׳ד"}, "tip": ""}, {"day": 85, "cat": "מקומות", "he": "שוק", "pal": {"ar": "سوق", "tr": "סוּק"}, "fus": {"ar": "سوق", "tr": "סוּק"}, "tip": ""}, {"day": 86, "cat": "מקומות", "he": "בית ספר", "pal": {"ar": "مَدْرَسِة", "tr": "מַדְרַסֶה"}, "fus": {"ar": "مَدْرَسَة", "tr": "מַדְרַסַה"}, "tip": ""}, {"day": 86, "cat": "מקומות", "he": "מחנה פליטים", "pal": {"ar": "مُخَيَّم", "tr": "מֻחַ׳יַּם"}, "fus": {"ar": "مُخَيَّم", "tr": "מֻחַ׳יַּם"}, "tip": "לַאגֶ׳א = פליט."}, {"day": 87, "cat": "זמן", "he": "שבוע", "pal": {"ar": "جُمْعَة", "tr": "גֻ׳מְעַה"}, "fus": {"ar": "أُسْبوع", "tr": "אֻסְבּוּע"}, "tip": "גֻ׳מְעַה = גם יום שישי."}, {"day": 87, "cat": "זמן", "he": "חודש", "pal": {"ar": "شَهِر", "tr": "שַׁהֶר"}, "fus": {"ar": "شَهْر", "tr": "שַׁהְר"}, "tip": ""}, {"day": 88, "cat": "זמן", "he": "שנה", "pal": {"ar": "سَنِة", "tr": "סַנֶה"}, "fus": {"ar": "سَنَة", "tr": "סַנַה"}, "tip": ""}, {"day": 88, "cat": "זמן", "he": "תמיד", "pal": {"ar": "دايْماً", "tr": "דַאיְמַן"}, "fus": {"ar": "دائِماً", "tr": "דַאאִמַן"}, "tip": ""}, {"day": 89, "cat": "זמן", "he": "אחר כך", "pal": {"ar": "بَعْدين", "tr": "בַּעְדֵין"}, "fus": {"ar": "فيما بَعْد", "tr": "פִימַא בַּעְד"}, "tip": ""}, {"day": 89, "cat": "זמן", "he": "גם / עוד", "pal": {"ar": "كَمان", "tr": "כַּמַאן"}, "fus": {"ar": "أَيْضاً", "tr": "אַיְצ׳ַן"}, "tip": "כַּמַאן וַאחַד = עוד אחד."}, {"day": 90, "cat": "ביטחון", "he": "קצין", "pal": {"ar": "ضابِط", "tr": "צ׳ַאבֶּט"}, "fus": {"ar": "ضابِط", "tr": "צ׳ַאבִּט"}, "tip": ""}, {"day": 90, "cat": "ביטחון", "he": "מודיעין / שב״כ", "pal": {"ar": "مُخابَرات", "tr": "מֻחַ׳אבַּרַאת"}, "fus": {"ar": "مُخابَرات", "tr": "מֻחַ׳אבַּרַאת"}, "tip": ""}, {"day": 91, "cat": "ביטחון", "he": "משת״פ", "pal": {"ar": "عَميل", "tr": "עַמִיל"}, "fus": {"ar": "عَميل", "tr": "עַמִיל"}, "tip": "כינוי גנאי חמור. גם: גַ׳אסוּס = מרגל."}, {"day": 91, "cat": "ביטחון", "he": "הפגנה", "pal": {"ar": "مُظاهَرَة", "tr": "מֻטַ׳אהַרַה"}, "fus": {"ar": "مُظاهَرَة", "tr": "מֻטַ׳אהַרַה"}, "tip": ""}, {"day": 92, "cat": "ביטחון", "he": "גז מדמיע", "pal": {"ar": "غاز", "tr": "עַ׳אז"}, "fus": {"ar": "غاز مُسيل لِلدُّموع", "tr": "עַ׳אז מֻסִיל לִלְדֻּמוּע"}, "tip": ""}, {"day": 92, "cat": "ביטחון", "he": "כדורים (תחמושת)", "pal": {"ar": "رَصاص", "tr": "רַצַאץ"}, "fus": {"ar": "رَصاص", "tr": "רַצַאץ"}, "tip": "רַצַאצַה = כדור אחד."}, {"day": 93, "cat": "ביטחון", "he": "ברח", "pal": {"ar": "هِرِب", "tr": "הִרֶבּ"}, "fus": {"ar": "هَرَبَ", "tr": "הַרַבַּ"}, "tip": ""}, {"day": 93, "cat": "ביטחון", "he": "תתפסו אותו!", "pal": {"ar": "اِمْسِكوه!", "tr": "אִמְסְכּוּה!"}, "fus": {"ar": "أَمْسِكوهُ!", "tr": "אַמְסִכוּהֻ!"}, "tip": ""}, {"day": 94, "cat": "ביטחון", "he": "תרים את החולצה", "pal": {"ar": "اِرْفَع البْلوزَة", "tr": "אִרְפַע אִלְבְּלוּזֶה"}, "fus": {"ar": "اِرْفَعِ القَميص", "tr": "אִרְפַעִ אַלְקַמִיץ"}, "tip": ""}, {"day": 94, "cat": "ביטחון", "he": "תסתובב", "pal": {"ar": "لِفّ", "tr": "לִףּ"}, "fus": {"ar": "اِسْتَدِرْ", "tr": "אִסְתַדִר"}, "tip": ""}, {"day": 95, "cat": "בסיס", "he": "אולי", "pal": {"ar": "يِمْكِن", "tr": "יִמְכֶּן"}, "fus": {"ar": "رُبَّما", "tr": "רֻבַּמַא"}, "tip": ""}, {"day": 95, "cat": "בסיס", "he": "כל / הכול", "pal": {"ar": "كُل", "tr": "כֻּל"}, "fus": {"ar": "كُلّ", "tr": "כֻּלּ"}, "tip": "כֻּל אִשִּׁי = הכול."}, {"day": 96, "cat": "בסיס", "he": "עדיין", "pal": {"ar": "لِسّا", "tr": "לִסַּא"}, "fus": {"ar": "لا يَزال", "tr": "לַא יַזַאל"}, "tip": "לִסַּא מַא אַגַ׳א = הוא עוד לא בא."}, {"day": 96, "cat": "בסיס", "he": "די! / נגמר", "pal": {"ar": "خَلَص!", "tr": "חַ׳לַץ!"}, "fus": {"ar": "كَفى!", "tr": "כַּפַא!"}, "tip": "עבר לעברית: \"חלאס\"."}, {"day": 97, "cat": "גוף", "he": "ראש", "pal": {"ar": "راس", "tr": "רַאס"}, "fus": {"ar": "رَأْس", "tr": "רַאְס"}, "tip": ""}, {"day": 97, "cat": "גוף", "he": "יד", "pal": {"ar": "إيد", "tr": "אִיד"}, "fus": {"ar": "يَد", "tr": "יַד"}, "tip": ""}, {"day": 98, "cat": "גוף", "he": "רגל", "pal": {"ar": "إِجِر", "tr": "אִגֶ׳ר"}, "fus": {"ar": "رِجْل", "tr": "רִגְ׳ל"}, "tip": ""}, {"day": 98, "cat": "גוף", "he": "עין", "pal": {"ar": "عين", "tr": "עֵין"}, "fus": {"ar": "عَيْن", "tr": "עַיְן"}, "tip": "עַלַא עֵינִי = בשמחה (\"על העין שלי\")."}, {"day": 99, "cat": "ביטוי", "he": "בוא נלך", "pal": {"ar": "يَلّا نْروح", "tr": "יַאללַה נְרוּח"}, "fus": {"ar": "لِنَذْهَبْ", "tr": "לִנַד׳הַבּ"}, "tip": ""}, {"day": 99, "cat": "ביטוי", "he": "תקשיב", "pal": {"ar": "اِسْمَع", "tr": "אִסְמַע"}, "fus": {"ar": "اِسْتَمِعْ", "tr": "אִסְתַמִע"}, "tip": ""}, {"day": 100, "cat": "ביטוי", "he": "כל הכבוד", "pal": {"ar": "بْرافو عَلَيك", "tr": "בְּרַאפוֹ עַלֵיכּ"}, "fus": {"ar": "أَحْسَنْت", "tr": "אַחְסַנְת"}, "tip": "שיעור 100!"}, {"day": 100, "cat": "ביטוי", "he": "תודה (למי שעובד)", "pal": {"ar": "يِعْطيك العافْيِة", "tr": "יִעְטִיכּ אִלְעַאפְיֶה"}, "fus": {"ar": "شُكْراً جَزيلاً", "tr": "שֻׁכְּרַן גַ׳זִילַן"}, "tip": "מילולית: \"שייתן לך בריאות\". עונים: אַללַּה יְעַאפִיכּ."}]};
+const W = DATA.words.map((w,i)=>({...w,id:i}));
+const MAXDAY = Math.max(...W.map(w=>w.day));
+const I = {
+  play:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M18 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  flame:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c1 3.5 5 6 5 11a5 5 0 0 1-10 0c0-2.2 1-3.8 2.3-5 .2 1.7 1 2.8 2.2 3.3C11 8.6 11 5 12 2z"/></svg>',
+  star:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2.5 2.9 6 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.2 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>',
+  book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 6c-2-1.5-5-2-8-1.5v14c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-14c-3-.5-6 0-8 1.5zM12 6v14"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+  cross:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor" stroke="none"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>',
+  trophy:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.4A5 5 0 0 1 13 14.9V18h3v3H8v-3h3v-3.1A5 5 0 0 1 8.4 12H8a4 4 0 0 1-4-4V5h3zm0 4H6v1a2 2 0 0 0 1 1.7zm10 0v2.7A2 2 0 0 0 18 8V7z"/></svg>'
+};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+
+/* ---------- calendar: lessons Sun–Thu, Israel time ---------- */
+const ymd=d=>d.toISOString().slice(0,10);
+function ilDate(d=new Date()){return new Date(d.toLocaleDateString("en-CA",{timeZone:"Asia/Jerusalem"})+"T12:00:00Z")}
+const TODAY=ilDate(), TODAY_S=ymd(TODAY);
+const isLessonDay=d=>d.getUTCDay()<=4;
+function lessonCount(){let n=0;for(let d=new Date(DATA.start+"T12:00:00Z");d<=TODAY;d.setUTCDate(d.getUTCDate()+1))if(isLessonDay(d))n++;return Math.max(1,n)}
+const N=Math.min(lessonCount(),MAXDAY);
+function lessonDate(k){let n=0;for(let d=new Date(DATA.start+"T12:00:00Z");n<1000;d.setUTCDate(d.getUTCDate()+1)){if(isLessonDay(d)&&++n===k)return d}}
+const fmtDate=d=>d.toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long",timeZone:"UTC"});
+function bonusFor(n){if(n<2)return null;return W[(n*7)%((n-1)*2)]} // same formula as the morning notification
+const byDay=k=>W.filter(w=>w.day===k);
+const unlocked=()=>W.filter(w=>w.day<=N);
+
+/* ---------- progress: private per viewer in db, mirrored on the device ---------- */
+let S={done:{},xp:0,days:[],learned:{},right:0,wrong:0};
+let saveDb=null,saveT;
+const NATIVE=window.KalamNative||null; // present inside the Android app: progress lives in the phone's app storage
+function lsGet(){try{const v=NATIVE?NATIVE.load():localStorage.getItem("kalam2");if(v)S={...S,...JSON.parse(v)}}catch(e){}}
+function lsSet(){try{const j=JSON.stringify(S);if(NATIVE)NATIVE.save(j);else localStorage.setItem("kalam2",j)}catch(e){}}
+function merge(a,b){return{done:{...(b.done||{}),...(a.done||{})},xp:Math.max(a.xp||0,b.xp||0),days:[...new Set([...(a.days||[]),...(b.days||[])])].sort(),learned:{...(b.learned||{}),...(a.learned||{})},right:Math.max(a.right||0,b.right||0),wrong:Math.max(a.wrong||0,b.wrong||0)}}
+function save(){lsSet();clearTimeout(saveT);saveT=setTimeout(()=>{saveDb&&saveDb(S).catch(()=>{})},500)}
+lsGet();
+(async()=>{try{
+  const [db,user]=await Promise.all([claude.use("db"),claude.use("user")]);
+  if(!db||!user)return; const id=await user.id(); if(!id)return;
+  const ref=db.collection("data/users/"+id).doc("progress");
+  const snap=await ref.get();
+  if(snap.exists){S=merge(S,snap.data());lsSet();if(!R)render()}
+  saveDb=s=>ref.set(JSON.parse(JSON.stringify(s)));
+  if(!snap.exists&&(S.xp||Object.keys(S.done).length))save();
+}catch(e){}})();
+function markActive(){if(!S.days.includes(TODAY_S))S.days.push(TODAY_S)}
+function streak(){ // consecutive Sun–Thu days with activity; Fri/Sat never break it; today may still be pending
+  let c=0,d=new Date(TODAY);
+  for(let i=0;i<500;i++){
+    const s=ymd(d);
+    if(!isLessonDay(d)){if(S.days.includes(s))c++;}
+    else if(S.days.includes(s))c++;
+    else if(s!==TODAY_S)break;
+    d.setUTCDate(d.getUTCDate()-1);
+    if(ymd(d)<DATA.start)break;
+  }
+  return c;
+}
+
+/* ---------- audio: recorded clips shipped with the app; device voice only as fallback ---------- */
+const AC={};
+let curAudio=null;
+function clipSrc(id,k){return "audio/"+String(id).padStart(3,"0")+k+".mp3"}
+function say(id,k,slow){
+  const src=clipSrc(id,k); const a=AC[src]||(AC[src]=new Audio(src));
+  if(curAudio&&curAudio!==a)curAudio.pause();
+  curAudio=a; a.currentTime=0; a.playbackRate=slow?0.7:1; a.preservesPitch=true;
+  const p=a.play(); if(p&&p.catch)p.catch(()=>deviceVoice(W[id][k==="p"?"pal":"fus"].ar,slow));
+}
+function deviceVoice(text,slow){
+  if(!("speechSynthesis" in window)){toast("לא הצלחתי להשמיע. בדוק שהשמע בטלפון לא מושתק.");return}
+  speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text.replace(/[!?؟]/g,"").replace(/\s*\/\s*/g,"، "));
+  u.lang="ar-SA"; const v=speechSynthesis.getVoices().find(v=>/^ar/i.test(v.lang)); if(v)u.voice=v; u.rate=slow?0.6:0.9; speechSynthesis.speak(u);
+}
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,3000)}
+
+/* ---------- header ---------- */
+function renderPills(){
+  const st=streak(), learned=Object.keys(S.learned).length;
+  document.getElementById("pills").innerHTML=
+   `<span class="pill streak ${st?"":"off"}" title="רצף ימים">${I.flame}${st}</span>`+
+   `<span class="pill xp" title="נקודות">${I.star}${S.xp}</span>`+
+   `<span class="pill words" title="מילים שלמדת">${I.book}${learned}</span>`;
+}
+
+/* ---------- learn tab: the path ---------- */
+const OFFS=[0,52,82,52,0,-52,-82,-52];
+function unitInfo(u){
+  const ws=W.filter(w=>Math.ceil(w.day/10)===u+1), c={};
+  ws.forEach(w=>c[w.cat]=(c[w.cat]||0)+1);
+  const top=Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]);
+  return top.join(" · ");
+}
+function firstOpen(){for(let k=1;k<=N;k++)if(!S.done[k])return k;return null}
+function renderLearn(){
+  const units=Math.ceil(MAXDAY/10), cur=firstOpen();
+  let h=`<p class="today-line">${fmtDate(TODAY)} · ${isLessonDay(TODAY)?`שיעור ${N} נפתח היום`:"סוף שבוע, אין שיעור חדש. זמן טוב לחזרה"}</p>`;
+  for(let u=0;u<units;u++){
+    const from=u*10+1,to=Math.min(MAXDAY,u*10+10);
+    const doneCnt=[...Array(to-from+1)].filter((_,i)=>S.done[from+i]).length;
+    const locked=from>N;
+    h+=`<section><div class="unit ${locked?"u-lock":u%2?"u-alt":""}"><div><h2>יחידה ${u+1}</h2><p>${esc(unitInfo(u))}</p></div><span class="cnt">${doneCnt}/${to-from+1}</span></div><div class="path">`;
+    for(let k=from;k<=to;k++){
+      const off=OFFS[(k-1)%8];
+      const st=S.done[k]?"done":k>N?"locked":k===cur?"cur":"open";
+      const icon=st==="done"?I.check:st==="locked"?I.lock:st==="cur"?I.star:k;
+      const cap=byDay(k).map(w=>w.he).join(" · ");
+      h+=`<div class="node-wrap" style="transform:translateX(${off}px)">${st==="cur"?`<span class="bubble">${S.xp||Object.keys(S.done).length?"המשך":"התחל"}</span>`:""}<button class="node ${st}" data-day="${k}" id="node-${k}" aria-label="שיעור ${k}: ${esc(cap)}">${icon}</button><span class="node-cap">${st==="locked"?"שיעור "+k:esc(cap)}</span></div>`;
+    }
+    h+=`</div></section>`;
+    if(locked&&u>Math.ceil(N/10))break; // show one locked unit as a teaser
+  }
+  let hideTip=!!NATIVE;try{hideTip=hideTip||localStorage.getItem("kalam-tip")==="1"}catch(e){}
+  if(!hideTip)h+=`<div class="tipcard"><div><b>להוספה למסך הבית בסמסונג</b>בכרום: תפריט ⋮ ← "הוסף למסך הבית". כך כלאם נפתחת כמו אפליקציה.</div><button class="x" data-act="hidetip" aria-label="הסתר">✕</button></div>`;
+  return h;
+}
+
+/* ---------- practice tab ---------- */
+function renderPractice(){
+  const total=S.right+S.wrong, acc=total?Math.round(S.right/total*100):0, st=streak();
+  const names=["א","ב","ג","ד","ה","ו","ש"];
+  const start=new Date(TODAY); start.setUTCDate(start.getUTCDate()-start.getUTCDay());
+  let week="";
+  for(let i=0;i<7;i++){const d=new Date(start);d.setUTCDate(start.getUTCDate()+i);const s=ymd(d);const on=S.days.includes(s);
+    week+=`<div class="wd ${on?"on":!isLessonDay(d)?"rest":""} ${s===TODAY_S?"now":""}"><i>${on?I.check.replace('stroke-width="3.2"','stroke-width="3.6" width="16" height="16"'):""}</i>${names[i]}</div>`}
+  return `<div class="hero"><h2>תרגול מהיר: 10 שאלות</h2><p>שאלות מכל ${unlocked().length} המילים שנפתחו עד עכשיו: האזנה, תרגום, ומעבר בין פלסטינית לרשמית. כל תשובה נכונה = נקודה.</p><button class="b3 fus" data-act="practice">התחל תרגול</button></div>
+   <div class="statgrid"><div class="stat"><b style="color:var(--gold-ink)">${st}</b><span>ימי רצף</span></div><div class="stat"><b style="color:var(--fus-ink)">${S.xp}</b><span>נקודות</span></div><div class="stat"><b style="color:var(--ok)">${total?acc+"%":"–"}</b><span>דיוק</span></div></div>
+   <h3 class="sec-h">השבוע שלך</h3><div class="week">${week}</div>
+   <h3 class="sec-h">התקדמות</h3><div class="statgrid"><div class="stat"><b>${Object.keys(S.done).length}</b><span>שיעורים</span></div><div class="stat"><b>${Object.keys(S.learned).length}</b><span>מילים</span></div><div class="stat"><b>${MAXDAY}</b><span>שיעורים במאגר</span></div></div>`;
+}
+
+/* ---------- dictionary tab ---------- */
+let dq="";
+function dictRows(){
+  const list=unlocked().filter(w=>!dq||(w.he+w.pal.tr+w.fus.tr+w.pal.ar+w.fus.ar+w.cat).includes(dq)).sort((a,b)=>b.day-a.day||a.id-b.id);
+  return list.map(w=>`<div class="row"><div class="he">${esc(w.he)}<small>שיעור ${w.day} · ${esc(w.cat)}</small></div>
+   <button class="mini p" data-say="${w.id}" data-k="p" aria-label="השמע בפלסטינית"><span class="dot"></span><span><span class="ar" lang="ar">${esc(w.pal.ar)}</span><span class="tr">${esc(w.pal.tr)}</span></span></button>
+   <button class="mini f" data-say="${w.id}" data-k="f" aria-label="השמע ברשמית"><span class="dot"></span><span><span class="ar" lang="ar">${esc(w.fus.ar)}</span><span class="tr">${esc(w.fus.tr)}</span></span></button></div>`).join("")||`<p class="empty">לא נמצאה מילה כזאת.</p>`;
+}
+function renderDict(){
+  return `<input class="search" id="search" type="search" placeholder="חיפוש בעברית או בערבית" value="${esc(dq)}">
+   <div class="legend"><span style="--c:var(--pal)">פלסטינית, מה ששומעים ברחוב</span><span style="--c:var(--fus)">ערבית רשמית</span><span>לחיצה משמיעה</span></div>
+   <div class="dict" id="dictbox">${dictRows()}</div>
+   <p class="today-line" style="margin-top:12px">${unlocked().length} מילים פתוחות. עוד ${W.length-unlocked().length} מחכות בשיעורים הבאים.</p>`;
+}
+
+/* ---------- shell ---------- */
+let tab=["learn","practice","dict"].includes(location.hash.slice(1))?location.hash.slice(1):"learn";
+function render(){
+  renderPills();
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===tab));
+  const v=document.getElementById("view");
+  v.innerHTML=tab==="learn"?renderLearn():tab==="practice"?renderPractice():renderDict();
+}
+
+/* ---------- lesson sheet ---------- */
+function openSheet(k){
+  const ws=byDay(k), done=S.done[k];
+  document.getElementById("sheet").innerHTML=`<div class="sheet-in"><h3>שיעור ${k}</h3><p class="sub">${esc(ws[0]?.cat||"")} · ${fmtDate(lessonDate(k))}</p>
+   <div class="words">${ws.map(w=>`<span class="wchip">${esc(w.he)}</span>`).join("")}${bonusFor(k)?`<span class="wchip" style="background:var(--gold-soft);color:var(--gold-ink)">בונוס: ${esc(bonusFor(k).he)}</span>`:""}</div>
+   <button class="b3 ${done?"gold":""}" data-act="start" data-day="${k}">${done?"חזרה על השיעור · 10 נקודות":"התחל שיעור · 20 נקודות"}</button>
+   <button class="b3 ghost" data-act="closesheet">לא עכשיו</button></div>`;
+  document.getElementById("sheet").hidden=false; document.getElementById("scrim").hidden=false;
+}
+function closeSheet(){document.getElementById("sheet").hidden=true;document.getElementById("scrim").hidden=true}
+
+/* ---------- exercises ---------- */
+let R=null;
+function distract(w,n,field){
+  const seen=new Set([w.he,w[field]?.ar]);
+  const pool=shuffle(W.filter(x=>x.id!==w.id)).sort((a,b)=>(b.day<=N)-(a.day<=N));
+  const out=[]; for(const x of pool){const key=field==="he"?x.he:x[field].ar; if(seen.has(key)||seen.has(x.he))continue; seen.add(key);seen.add(x.he);out.push(x); if(out.length===n)break}
+  return out;
+}
+function q(t,w){const field=t==="he2pal"?"pal":t==="pal2fus"?"fus":"he";return{t,w,opts:shuffle([w,...distract(w,3,field)])}}
+function buildLesson(k){
+  const ws=byDay(k), b=bonusFor(k), s=[];
+  ws.forEach(w=>{s.push({t:"intro",w});s.push(q("listen",w))});
+  ws.forEach(w=>s.push(q("he2pal",w)));
+  if(ws[0])s.push(q("pal2fus",ws[0])); if(ws[1])s.push(q("fus2he",ws[1]));
+  const extra=shuffle(W.filter(x=>x.day<k&&!ws.includes(x)&&x!==b)).slice(0,b?1:2);
+  const pairs=[...ws,...(b?[b]:[]),...extra]; if(pairs.length>=3)s.push({t:"match",pairs});
+  if(b){s.push({t:"intro",w:b,bonus:true});s.push(q("he2pal",b))}
+  return s;
+}
+function buildPractice(){
+  const pool=shuffle(unlocked()), kinds=["listen","he2pal","pal2fus","fus2he","listen","he2pal"], s=[];
+  for(let i=0;i<10;i++)s.push(q(kinds[Math.floor(Math.random()*kinds.length)],pool[i%pool.length]));
+  if(pool.length>=4)s.splice(5,0,{t:"match",pairs:pool.slice(0,4)});
+  return s;
+}
+function startRun(kind,k){
+  closeSheet();
+  R={kind,day:k,steps:kind==="lesson"?buildLesson(k):buildPractice(),i:0,mistakes:0,correct:0,phase:"ask",sel:null};
+  R.base=R.steps.length;
+  document.getElementById("runner").hidden=false; document.body.classList.add("lock");
+  drawStep();
+}
+function closeRun(){R=null;document.getElementById("runner").hidden=true;document.body.classList.remove("lock");render()}
+function verBlock(w,k,lab){
+  const key=k==="p"?"pal":"fus";
+  return `<div class="ver ${key}"><span class="lab">${lab}</span><span class="ar" lang="ar">${esc(w[key].ar)}</span>
+   <div class="plays"><button class="play ${k}" data-say="${w.id}" data-k="${k}" aria-label="השמע">${I.play}</button><button class="play ${k} slow" data-say="${w.id}" data-k="${k}" data-slow="1" aria-label="השמע לאט">לאט</button></div>
+   <span class="tr">${esc(w[key].tr)}</span></div>`;
+}
+function optHtml(o,t){
+  if(t==="he2pal")return `<span class="ar" lang="ar">${esc(o.pal.ar)}</span><span class="tr">${esc(o.pal.tr)}</span>`;
+  if(t==="pal2fus")return `<span class="ar" lang="ar">${esc(o.fus.ar)}</span><span class="tr">${esc(o.fus.tr)}</span>`;
+  return esc(o.he);
+}
+function drawStep(){
+  const st=R.steps[R.i], pct=Math.round(R.i/R.steps.length*100);
+  let body="", foot="";
+  if(st.t==="intro"){
+    const w=st.w;
+    body=`<span class="tag ${st.bonus?"bonus":"new"}">${st.bonus?"בונוס חזרה · משיעור "+w.day:"מילה חדשה"}</span><p class="meaning">${esc(w.he)}</p>
+     ${verBlock(w,"p","פלסטינית · מה ששומעים ברחוב")}${verBlock(w,"f","ערבית רשמית · חדשות ומסמכים")}${w.tip?`<div class="tipline">${esc(w.tip)}</div>`:""}`;
+    foot=`<button class="b3" data-act="next">המשך</button>`;
+    setTimeout(()=>say(w.id,"p"),250);
+  }else if(st.t==="match"){
+    R.m=R.m||{a:null,h:null,got:new Set(),L:shuffle(st.pairs),Rr:shuffle(st.pairs)};
+    const m=R.m;
+    const tile=(w,side)=>`<button class="opt ${m.got.has(w.id)?"gone":""} ${(side==="a"?m.a:m.h)===w.id?"sel":""}" data-match="${side}" data-id="${w.id}" ${m.got.has(w.id)?"disabled":""}>${side==="a"?`<span class="ar" lang="ar">${esc(w.pal.ar)}</span>`:esc(w.he)}</button>`;
+    body=`<p class="kind">חבר כל מילה לפירוש שלה</p><div class="match"><div class="col">${m.L.map(w=>tile(w,"a")).join("")}</div><div class="col">${m.Rr.map(w=>tile(w,"h")).join("")}</div></div>`;
+    foot=`<button class="b3" data-act="next" ${m.got.size===st.pairs.length?"":"disabled"}>המשך</button>`;
+  }else{
+    const w=st.w;
+    let prompt="";
+    if(st.t==="listen")prompt=`<p class="kind">מה שמעת?</p><div class="prompt"><button class="play p bigplay" data-say="${w.id}" data-k="p" aria-label="השמע שוב">${I.play}</button><button class="play p slow" data-say="${w.id}" data-k="p" data-slow="1">לאט</button></div>`;
+    else if(st.t==="he2pal")prompt=`<p class="kind">איך אומרים בפלסטינית?</p><p class="meaning">${esc(w.he)}</p>`;
+    else if(st.t==="pal2fus")prompt=`<p class="kind">מה המקבילה בערבית הרשמית?</p><div class="prompt"><button class="play p" data-say="${w.id}" data-k="p" aria-label="השמע">${I.play}</button><div><span class="ar" lang="ar">${esc(w.pal.ar)}</span><br><span class="tr">${esc(w.pal.tr)}</span></div></div>`;
+    else prompt=`<p class="kind">מה פירוש המילה הרשמית?</p><div class="prompt"><button class="play f" data-say="${w.id}" data-k="f" aria-label="השמע">${I.play}</button><div><span class="ar" lang="ar">${esc(w.fus.ar)}</span><br><span class="tr">${esc(w.fus.tr)}</span></div></div>`;
+    const answered=R.phase!=="ask";
+    body=prompt+`<div class="opts">${st.opts.map(o=>{let c="";if(answered){if(o.id===w.id)c="right";else if(o.id===R.sel)c="wrong"}else if(o.id===R.sel)c="sel";return `<button class="opt ${c}" data-opt="${o.id}" ${answered?"disabled":""}>${optHtml(o,st.t)}</button>`}).join("")}</div>`;
+    if(!answered)foot=`<button class="b3" data-act="check" ${R.sel==null?"disabled":""}>בדוק</button>`;
+    else{
+      const ok=R.phase==="ok";
+      foot=`<div class="fb"><span class="ic">${ok?I.check:I.cross}</span><div><h4>${ok?["מצוין!","נכון!","יפה מאוד!","בדיוק!"][Math.floor(Math.random()*4)]:"התשובה הנכונה:"}</h4>
+       <p>${esc(w.he)} = <span class="ar" lang="ar">${esc(w.pal.ar)}</span> ${esc(w.pal.tr)} · רשמי: ${esc(w.fus.tr)}</p></div></div>
+       <button class="b3 ${ok?"":"bad"}" data-act="next">המשך</button>`;
+    }
+    if(st.t==="listen"&&R.phase==="ask"&&R.sel==null)setTimeout(()=>say(w.id,"p"),250);
+  }
+  const fc=R.phase==="ok"?"ok":R.phase==="bad"?"bad":"";
+  document.getElementById("runner").innerHTML=`<div class="r-top px"><button class="r-x" data-act="quit" aria-label="יציאה">${I.cross}</button><div class="bar"><i style="width:${pct}%"></i></div></div>
+   <div class="r-main"><div class="r-body px">${body}</div></div>
+   <div class="r-foot px ${fc}"><div class="r-foot-in">${foot}</div></div>`;
+}
+function check(){
+  const st=R.steps[R.i]; const ok=R.sel===st.w.id;
+  R.phase=ok?"ok":"bad";
+  if(ok){R.correct++;S.right++}else{R.mistakes++;S.wrong++;R.steps.push(q(st.t,st.w))}
+  say(st.w.id,"p"); drawStep(); save();
+}
+function next(){
+  R.i++; R.sel=null; R.phase="ask"; R.m=null;
+  if(R.i>=R.steps.length)return finish();
+  drawStep();
+}
+function finish(){
+  let gain;
+  if(R.kind==="lesson"){
+    const again=!!S.done[R.day];
+    gain=(again?10:20)+(R.mistakes===0?5:0);
+    S.done[R.day]=S.done[R.day]||Date.now();
+    byDay(R.day).forEach(w=>S.learned[w.id]=S.learned[w.id]||Date.now());
+  }else gain=R.correct;
+  S.xp+=gain; markActive(); save();
+  const asked=R.correct+R.mistakes, acc=asked?Math.round(R.correct/asked*100):100;
+  const nextK=firstOpen();
+  document.getElementById("runner").innerHTML=`<div class="r-main"><div class="r-body px"><div class="done-screen">
+   <div class="medal">${I.trophy}</div>
+   <h2>${R.kind==="lesson"?`שיעור ${R.day} הושלם!`:"התרגול הושלם!"}</h2>
+   <p>${R.mistakes===0?"בלי טעויות. ככה בונים אוזן לערבית.":"כל טעות חזרה שוב עד שהצלחת. ככה זה נקלט."}</p>
+   <div class="rew"><div class="x"><b>+${gain}</b><span>נקודות</span></div><div class="s"><b>${streak()}</b><span>ימי רצף</span></div><div class="a"><b>${acc}%</b><span>דיוק</span></div></div>
+  </div></div></div>
+  <div class="r-foot px"><div class="r-foot-in">${R.kind==="lesson"&&nextK?`<button class="b3" data-act="start" data-day="${nextK}">לשיעור ${nextK}</button>`:""}<button class="b3 ${R.kind==="lesson"&&nextK?"ghost":""}" data-act="quit">חזרה למסלול</button></div></div>`;
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button");
+  if(!b){if(e.target.id==="scrim")closeSheet();return}
+  if(b.dataset.say){say(+b.dataset.say,b.dataset.k,!!b.dataset.slow);return}
+  if(b.dataset.tab){tab=b.dataset.tab;history.replaceState(null,"","#"+tab);if(tab!=="dict")dq="";render();window.scrollTo(0,0);return}
+  if(b.classList.contains("node")){const k=+b.dataset.day;if(k>N){toast(`שיעור ${k} ייפתח ב${fmtDate(lessonDate(k))}`);return}openSheet(k);return}
+  const a=b.dataset.act;
+  if(a==="closesheet")return closeSheet();
+  if(a==="start"){if(R)R=null;return startRun("lesson",+b.dataset.day)}
+  if(a==="practice")return startRun("practice");
+  if(a==="quit")return closeRun();
+  if(a==="next")return next();
+  if(a==="check")return check();
+  if(a==="hidetip"){try{localStorage.setItem("kalam-tip","1")}catch(e){}render();return}
+  if(b.dataset.opt&&R&&R.phase==="ask"){
+    R.sel=+b.dataset.opt; const st=R.steps[R.i];
+    if(st.t==="he2pal")say(R.sel,"p"); else if(st.t==="pal2fus")say(R.sel,"f");
+    drawStep(); return;
+  }
+  if(b.dataset.match&&R&&R.m){
+    const m=R.m, id=+b.dataset.id, st=R.steps[R.i];
+    if(b.dataset.match==="a"){m.a=id;say(id,"p")}else m.h=id;
+    if(m.a!=null&&m.h!=null){
+      if(m.a===m.h){m.got.add(m.a);m.a=m.h=null;drawStep()}
+      else{const ids=[m.a,m.h];m.a=m.h=null;R.mistakes++;drawStep();
+        ids.forEach((x,i)=>{const el=document.querySelector(`[data-match="${i?"h":"a"}"][data-id="${x}"]`);if(el){el.classList.add("wrong","shake");setTimeout(()=>el.classList.remove("wrong","shake"),450)}})}
+      if(m.got.size===st.pairs.length){S.right++;save()}
+    }else drawStep();
+    return;
+  }
+});
+document.addEventListener("input",e=>{if(e.target.id==="search"){dq=e.target.value.trim();document.getElementById("dictbox").innerHTML=dictRows()}});
+window.addEventListener("hashchange",()=>{const h=location.hash.slice(1);if(["learn","practice","dict"].includes(h)&&h!==tab){tab=h;render()}});
+render();
+if(tab==="learn"){const k=firstOpen()||N;const el=document.getElementById("node-"+k);if(el&&k>4)setTimeout(()=>el.scrollIntoView({block:"center"}),60)}
+</script>
