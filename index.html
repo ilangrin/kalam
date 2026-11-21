@@ -114,6 +114,14 @@ main{max-width:560px;margin:0 auto;padding-block:14px calc(96px + env(safe-area-
 .dict{background:var(--surface);border:2px solid var(--line);border-radius:16px;overflow:hidden}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;padding:12px 14px;border-bottom:2px solid var(--line)}
 .row:last-child{border-bottom:none}
+.row.one{grid-template-columns:1fr}
+.modebar{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+.modebar>span{font-weight:700;font-size:.9rem;color:var(--muted);white-space:nowrap}
+.seg{display:flex;flex:1;min-width:0;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:3px;gap:3px}
+.seg button{flex:1;min-width:0;border:none;background:none;border-radius:10px;padding:8px 4px;font-weight:700;font-size:.9rem;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--pal);color:var(--on)}
+.seg button[data-mode="fus"][aria-pressed="true"]{background:var(--fus)}
+.seg button[data-mode="both"][aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .row .he{grid-column:1/-1;font-weight:700;display:flex;justify-content:space-between;gap:8px}
 .row .he small{font-weight:400;color:var(--muted);font-size:.78rem}
 .mini{display:flex;align-items:center;gap:8px;min-width:0;background:var(--bg);border:none;border-radius:12px;padding:6px 10px;text-align:right;cursor:pointer}
@@ -261,7 +269,7 @@ let saveDb=null,saveT;
 const NATIVE=window.KalamNative||null; // present inside the Android app: progress lives in the phone's app storage
 function lsGet(){try{const v=NATIVE?NATIVE.load():localStorage.getItem("kalam2");if(v)S={...S,...JSON.parse(v)}}catch(e){}}
 function lsSet(){try{const j=JSON.stringify(S);if(NATIVE)NATIVE.save(j);else localStorage.setItem("kalam2",j)}catch(e){}}
-function merge(a,b){return{done:{...(b.done||{}),...(a.done||{})},xp:Math.max(a.xp||0,b.xp||0),days:[...new Set([...(a.days||[]),...(b.days||[])])].sort(),learned:{...(b.learned||{}),...(a.learned||{})},right:Math.max(a.right||0,b.right||0),wrong:Math.max(a.wrong||0,b.wrong||0)}}
+function merge(a,b){return{done:{...(b.done||{}),...(a.done||{})},xp:Math.max(a.xp||0,b.xp||0),days:[...new Set([...(a.days||[]),...(b.days||[])])].sort(),learned:{...(b.learned||{}),...(a.learned||{})},right:Math.max(a.right||0,b.right||0),wrong:Math.max(a.wrong||0,b.wrong||0),mode:a.mode||b.mode}}
 function save(){lsSet();clearTimeout(saveT);saveT=setTimeout(()=>{saveDb&&saveDb(S).catch(()=>{})},500)}
 lsGet();
 (async()=>{try{
@@ -325,6 +333,7 @@ function firstOpen(){for(let k=1;k<=N;k++)if(!S.done[k])return k;return null}
 function renderLearn(){
   const units=Math.ceil(MAXDAY/10), cur=firstOpen();
   let h=`<p class="today-line">${fmtDate(TODAY)} · ${isLessonDay(TODAY)?`שיעור ${N} נפתח היום`:"סוף שבוע, אין שיעור חדש. זמן טוב לחזרה"}</p>`;
+  h+=modeBar();
   for(let u=0;u<units;u++){
     const from=u*10+1,to=Math.min(MAXDAY,u*10+10);
     const doneCnt=[...Array(to-from+1)].filter((_,i)=>S.done[from+i]).length;
@@ -345,6 +354,11 @@ function renderLearn(){
   return h;
 }
 
+function modeBar(){
+  const m=MODE(), b=(v,l)=>`<button data-mode="${v}" aria-pressed="${m===v}">${l}</button>`;
+  return `<div class="modebar"><span>מה ללמוד</span><div class="seg" role="group" aria-label="מה ללמוד">${b("pal","פלסטינית")}${b("fus","רשמית")}${b("both","שתיהן")}</div></div>`;
+}
+
 /* ---------- practice tab ---------- */
 function renderPractice(){
   const total=S.right+S.wrong, acc=total?Math.round(S.right/total*100):0, st=streak();
@@ -353,7 +367,7 @@ function renderPractice(){
   let week="";
   for(let i=0;i<7;i++){const d=new Date(start);d.setUTCDate(start.getUTCDate()+i);const s=ymd(d);const on=S.days.includes(s);
     week+=`<div class="wd ${on?"on":!isLessonDay(d)?"rest":""} ${s===TODAY_S?"now":""}"><i>${on?I.check.replace('stroke-width="3.2"','stroke-width="3.6" width="16" height="16"'):""}</i>${names[i]}</div>`}
-  return `<div class="hero"><h2>תרגול מהיר: 10 שאלות</h2><p>שאלות מכל ${unlocked().length} המילים שנפתחו עד עכשיו: האזנה, תרגום, ומעבר בין פלסטינית לרשמית. כל תשובה נכונה = נקודה.</p><button class="b3 fus" data-act="practice">התחל תרגול</button></div>
+  return `<div class="hero"><h2>תרגול מהיר: 10 שאלות</h2><p>שאלות מכל ${unlocked().length} המילים שנפתחו עד עכשיו: ${MODE()==="both"?"האזנה, תרגום, ומעבר בין פלסטינית לרשמית":"האזנה ותרגום ב"+LANG[PK()]}. כל תשובה נכונה = נקודה.</p><button class="b3 fus" data-act="practice">התחל תרגול</button></div>
    <div class="statgrid"><div class="stat"><b style="color:var(--gold-ink)">${st}</b><span>ימי רצף</span></div><div class="stat"><b style="color:var(--fus-ink)">${S.xp}</b><span>נקודות</span></div><div class="stat"><b style="color:var(--ok)">${total?acc+"%":"–"}</b><span>דיוק</span></div></div>
    <h3 class="sec-h">השבוע שלך</h3><div class="week">${week}</div>
    <h3 class="sec-h">התקדמות</h3><div class="statgrid"><div class="stat"><b>${Object.keys(S.done).length}</b><span>שיעורים</span></div><div class="stat"><b>${Object.keys(S.learned).length}</b><span>מילים</span></div><div class="stat"><b>${MAXDAY}</b><span>שיעורים במאגר</span></div></div>`;
@@ -363,13 +377,13 @@ function renderPractice(){
 let dq="";
 function dictRows(){
   const list=unlocked().filter(w=>!dq||(w.he+w.pal.tr+w.fus.tr+w.pal.ar+w.fus.ar+w.cat).includes(dq)).sort((a,b)=>b.day-a.day||a.id-b.id);
-  return list.map(w=>`<div class="row"><div class="he">${esc(w.he)}<small>שיעור ${w.day} · ${esc(w.cat)}</small></div>
-   <button class="mini p" data-say="${w.id}" data-k="p" aria-label="השמע בפלסטינית"><span class="dot"></span><span><span class="ar" lang="ar">${esc(w.pal.ar)}</span><span class="tr">${esc(w.pal.tr)}</span></span></button>
-   <button class="mini f" data-say="${w.id}" data-k="f" aria-label="השמע ברשמית"><span class="dot"></span><span><span class="ar" lang="ar">${esc(w.fus.ar)}</span><span class="tr">${esc(w.fus.tr)}</span></span></button></div>`).join("")||`<p class="empty">לא נמצאה מילה כזאת.</p>`;
+  const ks=KS();
+  return list.map(w=>`<div class="row ${ks.length===1?"one":""}"><div class="he">${esc(w.he)}<small>שיעור ${w.day} · ${esc(w.cat)}</small></div>
+   ${ks.map(k=>{const key=KEY(k);return `<button class="mini ${k}" data-say="${w.id}" data-k="${k}" aria-label="השמע ב${LANG[k]}"><span class="dot"></span><span><span class="ar" lang="ar">${esc(w[key].ar)}</span><span class="tr">${esc(w[key].tr)}</span></span></button>`}).join("")}</div>`).join("")||`<p class="empty">לא נמצאה מילה כזאת.</p>`;
 }
 function renderDict(){
   return `<input class="search" id="search" type="search" placeholder="חיפוש בעברית או בערבית" value="${esc(dq)}">
-   <div class="legend"><span style="--c:var(--pal)">פלסטינית, מה ששומעים ברחוב</span><span style="--c:var(--fus)">ערבית רשמית</span><span>לחיצה משמיעה</span></div>
+   ${modeBar()}<div class="legend">${KS().includes("p")?`<span style="--c:var(--pal)">פלסטינית, מה ששומעים ברחוב</span>`:""}${KS().includes("f")?`<span style="--c:var(--fus)">ערבית רשמית</span>`:""}<span>לחיצה משמיעה</span></div>
    <div class="dict" id="dictbox">${dictRows()}</div>
    <p class="today-line" style="margin-top:12px">${unlocked().length} מילים פתוחות. עוד ${W.length-unlocked().length} מחכות בשיעורים הבאים.</p>`;
 }
@@ -395,28 +409,36 @@ function openSheet(k){
 function closeSheet(){document.getElementById("sheet").hidden=true;document.getElementById("scrim").hidden=true}
 
 /* ---------- exercises ---------- */
+/* Learning mode (S.mode): "pal" = Palestinian only, "fus" = formal only, "both" = side by side. k = "p" | "f". */
+const KEY=k=>k==="p"?"pal":"fus";
+const MODE=()=>["pal","fus","both"].includes(S.mode)?S.mode:"both";
+const KS=()=>MODE()==="pal"?["p"]:MODE()==="fus"?["f"]:["p","f"];
+const PK=()=>MODE()==="fus"?"f":"p";
+const LANG={p:"פלסטינית",f:"ערבית רשמית"};
 let R=null;
 function distract(w,n,field){
-  const seen=new Set([w.he,w[field]?.ar]);
+  const seen=new Set([w.he,field==="he"?w.he:w[field].ar]);
   const pool=shuffle(W.filter(x=>x.id!==w.id)).sort((a,b)=>(b.day<=N)-(a.day<=N));
   const out=[]; for(const x of pool){const key=field==="he"?x.he:x[field].ar; if(seen.has(key)||seen.has(x.he))continue; seen.add(key);seen.add(x.he);out.push(x); if(out.length===n)break}
   return out;
 }
-function q(t,w){const field=t==="he2pal"?"pal":t==="pal2fus"?"fus":"he";return{t,w,opts:shuffle([w,...distract(w,3,field)])}}
-function buildLesson(k){
-  const ws=byDay(k), b=bonusFor(k), s=[];
-  ws.forEach(w=>{s.push({t:"intro",w});s.push(q("listen",w))});
-  ws.forEach(w=>s.push(q("he2pal",w)));
-  if(ws[0])s.push(q("pal2fus",ws[0])); if(ws[1])s.push(q("fus2he",ws[1]));
-  const extra=shuffle(W.filter(x=>x.day<k&&!ws.includes(x)&&x!==b)).slice(0,b?1:2);
-  const pairs=[...ws,...(b?[b]:[]),...extra]; if(pairs.length>=3)s.push({t:"match",pairs});
-  if(b){s.push({t:"intro",w:b,bonus:true});s.push(q("he2pal",b))}
+function q(t,w,k){const field=t==="he2ar"?KEY(k):t==="pal2fus"?"fus":"he";return{t,w,k,opts:shuffle([w,...distract(w,3,field)])}}
+function buildLesson(day){
+  const ws=byDay(day), b=bonusFor(day), P=PK(), s=[];
+  ws.forEach(w=>{s.push({t:"intro",w});s.push(q("listen",w,P))});
+  ws.forEach(w=>s.push(q("he2ar",w,P)));
+  if(MODE()==="both"){if(ws[0])s.push(q("pal2fus",ws[0],"p")); if(ws[1])s.push(q("ar2he",ws[1],"f"))}
+  else ws.forEach(w=>s.push(q("ar2he",w,P)));
+  const extra=shuffle(W.filter(x=>x.day<day&&!ws.includes(x)&&x!==b)).slice(0,b?1:2);
+  const pairs=[...ws,...(b?[b]:[]),...extra]; if(pairs.length>=3)s.push({t:"match",pairs,k:P});
+  if(b){s.push({t:"intro",w:b,bonus:true});s.push(q("he2ar",b,P))}
   return s;
 }
 function buildPractice(){
-  const pool=shuffle(unlocked()), kinds=["listen","he2pal","pal2fus","fus2he","listen","he2pal"], s=[];
-  for(let i=0;i<10;i++)s.push(q(kinds[Math.floor(Math.random()*kinds.length)],pool[i%pool.length]));
-  if(pool.length>=4)s.splice(5,0,{t:"match",pairs:pool.slice(0,4)});
+  const P=PK(), pool=shuffle(unlocked()), s=[];
+  const kinds=MODE()==="both"?[["listen","p"],["he2ar","p"],["pal2fus","p"],["ar2he","f"],["listen","f"],["he2ar","f"]]:[["listen",P],["he2ar",P],["ar2he",P]];
+  for(let i=0;i<10;i++){const [t,k]=kinds[Math.floor(Math.random()*kinds.length)];s.push(q(t,pool[i%pool.length],k))}
+  if(pool.length>=4)s.splice(5,0,{t:"match",pairs:pool.slice(0,4),k:P});
   return s;
 }
 function startRun(kind,k){
@@ -427,16 +449,21 @@ function startRun(kind,k){
   drawStep();
 }
 function closeRun(){R=null;document.getElementById("runner").hidden=true;document.body.classList.remove("lock");render()}
-function verBlock(w,k,lab){
-  const key=k==="p"?"pal":"fus";
+function verBlock(w,k){
+  const key=KEY(k), lab=k==="p"?"פלסטינית · מה ששומעים ברחוב":"ערבית רשמית · חדשות ומסמכים";
   return `<div class="ver ${key}"><span class="lab">${lab}</span><span class="ar" lang="ar">${esc(w[key].ar)}</span>
    <div class="plays"><button class="play ${k}" data-say="${w.id}" data-k="${k}" aria-label="השמע">${I.play}</button><button class="play ${k} slow" data-say="${w.id}" data-k="${k}" data-slow="1" aria-label="השמע לאט">לאט</button></div>
    <span class="tr">${esc(w[key].tr)}</span></div>`;
 }
-function optHtml(o,t){
-  if(t==="he2pal")return `<span class="ar" lang="ar">${esc(o.pal.ar)}</span><span class="tr">${esc(o.pal.tr)}</span>`;
-  if(t==="pal2fus")return `<span class="ar" lang="ar">${esc(o.fus.ar)}</span><span class="tr">${esc(o.fus.tr)}</span>`;
+function optHtml(o,st){
+  if(st.t==="he2ar"){const key=KEY(st.k);return `<span class="ar" lang="ar">${esc(o[key].ar)}</span><span class="tr">${esc(o[key].tr)}</span>`}
+  if(st.t==="pal2fus")return `<span class="ar" lang="ar">${esc(o.fus.ar)}</span><span class="tr">${esc(o.fus.tr)}</span>`;
   return esc(o.he);
+}
+function answerLine(w){
+  const ks=KS();
+  if(ks.length===1){const key=KEY(ks[0]);return `${esc(w.he)} = <span class="ar" lang="ar">${esc(w[key].ar)}</span> ${esc(w[key].tr)}`}
+  return `${esc(w.he)} = <span class="ar" lang="ar">${esc(w.pal.ar)}</span> ${esc(w.pal.tr)} · רשמי: ${esc(w.fus.tr)}`;
 }
 function drawStep(){
   const st=R.steps[R.i], pct=Math.round(R.i/R.steps.length*100);
@@ -444,32 +471,32 @@ function drawStep(){
   if(st.t==="intro"){
     const w=st.w;
     body=`<span class="tag ${st.bonus?"bonus":"new"}">${st.bonus?"בונוס חזרה · משיעור "+w.day:"מילה חדשה"}</span><p class="meaning">${esc(w.he)}</p>
-     ${verBlock(w,"p","פלסטינית · מה ששומעים ברחוב")}${verBlock(w,"f","ערבית רשמית · חדשות ומסמכים")}${w.tip?`<div class="tipline">${esc(w.tip)}</div>`:""}`;
+     ${KS().map(k=>verBlock(w,k)).join("")}${w.tip?`<div class="tipline">${esc(w.tip)}</div>`:""}`;
     foot=`<button class="b3" data-act="next">המשך</button>`;
-    setTimeout(()=>say(w.id,"p"),250);
+    setTimeout(()=>say(w.id,PK()),250);
   }else if(st.t==="match"){
     R.m=R.m||{a:null,h:null,got:new Set(),L:shuffle(st.pairs),Rr:shuffle(st.pairs)};
-    const m=R.m;
-    const tile=(w,side)=>`<button class="opt ${m.got.has(w.id)?"gone":""} ${(side==="a"?m.a:m.h)===w.id?"sel":""}" data-match="${side}" data-id="${w.id}" ${m.got.has(w.id)?"disabled":""}>${side==="a"?`<span class="ar" lang="ar">${esc(w.pal.ar)}</span>`:esc(w.he)}</button>`;
+    const m=R.m, key=KEY(st.k);
+    const tile=(w,side)=>`<button class="opt ${m.got.has(w.id)?"gone":""} ${(side==="a"?m.a:m.h)===w.id?"sel":""}" data-match="${side}" data-id="${w.id}" ${m.got.has(w.id)?"disabled":""}>${side==="a"?`<span class="ar" lang="ar">${esc(w[key].ar)}</span>`:esc(w.he)}</button>`;
     body=`<p class="kind">חבר כל מילה לפירוש שלה</p><div class="match"><div class="col">${m.L.map(w=>tile(w,"a")).join("")}</div><div class="col">${m.Rr.map(w=>tile(w,"h")).join("")}</div></div>`;
     foot=`<button class="b3" data-act="next" ${m.got.size===st.pairs.length?"":"disabled"}>המשך</button>`;
   }else{
-    const w=st.w;
+    const w=st.w, k=st.k, key=KEY(k);
     let prompt="";
-    if(st.t==="listen")prompt=`<p class="kind">מה שמעת?</p><div class="prompt"><button class="play p bigplay" data-say="${w.id}" data-k="p" aria-label="השמע שוב">${I.play}</button><button class="play p slow" data-say="${w.id}" data-k="p" data-slow="1">לאט</button></div>`;
-    else if(st.t==="he2pal")prompt=`<p class="kind">איך אומרים בפלסטינית?</p><p class="meaning">${esc(w.he)}</p>`;
+    if(st.t==="listen")prompt=`<p class="kind">מה שמעת?</p><div class="prompt"><button class="play ${k} bigplay" data-say="${w.id}" data-k="${k}" aria-label="השמע שוב">${I.play}</button><button class="play ${k} slow" data-say="${w.id}" data-k="${k}" data-slow="1">לאט</button></div>`;
+    else if(st.t==="he2ar")prompt=`<p class="kind">איך אומרים ב${LANG[k]}?</p><p class="meaning">${esc(w.he)}</p>`;
     else if(st.t==="pal2fus")prompt=`<p class="kind">מה המקבילה בערבית הרשמית?</p><div class="prompt"><button class="play p" data-say="${w.id}" data-k="p" aria-label="השמע">${I.play}</button><div><span class="ar" lang="ar">${esc(w.pal.ar)}</span><br><span class="tr">${esc(w.pal.tr)}</span></div></div>`;
-    else prompt=`<p class="kind">מה פירוש המילה הרשמית?</p><div class="prompt"><button class="play f" data-say="${w.id}" data-k="f" aria-label="השמע">${I.play}</button><div><span class="ar" lang="ar">${esc(w.fus.ar)}</span><br><span class="tr">${esc(w.fus.tr)}</span></div></div>`;
+    else prompt=`<p class="kind">${k==="f"&&MODE()==="both"?"מה פירוש המילה הרשמית?":"מה פירוש המילה?"}</p><div class="prompt"><button class="play ${k}" data-say="${w.id}" data-k="${k}" aria-label="השמע">${I.play}</button><div><span class="ar" lang="ar">${esc(w[key].ar)}</span><br><span class="tr">${esc(w[key].tr)}</span></div></div>`;
     const answered=R.phase!=="ask";
-    body=prompt+`<div class="opts">${st.opts.map(o=>{let c="";if(answered){if(o.id===w.id)c="right";else if(o.id===R.sel)c="wrong"}else if(o.id===R.sel)c="sel";return `<button class="opt ${c}" data-opt="${o.id}" ${answered?"disabled":""}>${optHtml(o,st.t)}</button>`}).join("")}</div>`;
+    body=prompt+`<div class="opts">${st.opts.map(o=>{let c="";if(answered){if(o.id===w.id)c="right";else if(o.id===R.sel)c="wrong"}else if(o.id===R.sel)c="sel";return `<button class="opt ${c}" data-opt="${o.id}" ${answered?"disabled":""}>${optHtml(o,st)}</button>`}).join("")}</div>`;
     if(!answered)foot=`<button class="b3" data-act="check" ${R.sel==null?"disabled":""}>בדוק</button>`;
     else{
       const ok=R.phase==="ok";
       foot=`<div class="fb"><span class="ic">${ok?I.check:I.cross}</span><div><h4>${ok?["מצוין!","נכון!","יפה מאוד!","בדיוק!"][Math.floor(Math.random()*4)]:"התשובה הנכונה:"}</h4>
-       <p>${esc(w.he)} = <span class="ar" lang="ar">${esc(w.pal.ar)}</span> ${esc(w.pal.tr)} · רשמי: ${esc(w.fus.tr)}</p></div></div>
+       <p>${answerLine(w)}</p></div></div>
        <button class="b3 ${ok?"":"bad"}" data-act="next">המשך</button>`;
     }
-    if(st.t==="listen"&&R.phase==="ask"&&R.sel==null)setTimeout(()=>say(w.id,"p"),250);
+    if(st.t==="listen"&&R.phase==="ask"&&R.sel==null)setTimeout(()=>say(w.id,k),250);
   }
   const fc=R.phase==="ok"?"ok":R.phase==="bad"?"bad":"";
   document.getElementById("runner").innerHTML=`<div class="r-top px"><button class="r-x" data-act="quit" aria-label="יציאה">${I.cross}</button><div class="bar"><i style="width:${pct}%"></i></div></div>
@@ -479,8 +506,8 @@ function drawStep(){
 function check(){
   const st=R.steps[R.i]; const ok=R.sel===st.w.id;
   R.phase=ok?"ok":"bad";
-  if(ok){R.correct++;S.right++}else{R.mistakes++;S.wrong++;R.steps.push(q(st.t,st.w))}
-  say(st.w.id,"p"); drawStep(); save();
+  if(ok){R.correct++;S.right++}else{R.mistakes++;S.wrong++;R.steps.push(q(st.t,st.w,st.k))}
+  say(st.w.id,st.t==="pal2fus"?"f":st.k); drawStep(); save();
   if(ok)autoNext(1400); // right answer: move on by itself after the praise and the word is heard
 }
 function autoNext(ms){const run=R,at=R.i;setTimeout(()=>{if(R===run&&R.i===at&&R.phase!=="bad")next()},ms)}
@@ -516,6 +543,7 @@ document.addEventListener("click",e=>{
   if(b.dataset.say){say(+b.dataset.say,b.dataset.k,!!b.dataset.slow);return}
   if(b.dataset.tab){tab=b.dataset.tab;history.replaceState(null,"","#"+tab);if(tab!=="dict")dq="";render();window.scrollTo(0,0);return}
   if(b.classList.contains("node")){const k=+b.dataset.day;if(k>N){toast(`שיעור ${k} ייפתח ב${fmtDate(lessonDate(k))}`);return}openSheet(k);return}
+  if(b.dataset.mode){S.mode=b.dataset.mode;save();render();toast(S.mode==="pal"?"מעכשיו: פלסטינית בלבד":S.mode==="fus"?"מעכשיו: ערבית רשמית בלבד":"מעכשיו: פלסטינית ורשמית יחד");return}
   const a=b.dataset.act;
   if(a==="closesheet")return closeSheet();
   if(a==="start"){if(R)R=null;return startRun("lesson",+b.dataset.day)}
@@ -526,12 +554,12 @@ document.addEventListener("click",e=>{
   if(a==="hidetip"){try{localStorage.setItem("kalam-tip","1")}catch(e){}render();return}
   if(b.dataset.opt&&R&&R.phase==="ask"){
     R.sel=+b.dataset.opt; const st=R.steps[R.i];
-    if(st.t==="he2pal")say(R.sel,"p"); else if(st.t==="pal2fus")say(R.sel,"f");
+    if(st.t==="he2ar")say(R.sel,st.k); else if(st.t==="pal2fus")say(R.sel,"f");
     drawStep(); return;
   }
   if(b.dataset.match&&R&&R.m){
     const m=R.m, id=+b.dataset.id, st=R.steps[R.i];
-    if(b.dataset.match==="a"){m.a=id;say(id,"p")}else m.h=id;
+    if(b.dataset.match==="a"){m.a=id;say(id,st.k)}else m.h=id;
     if(m.a!=null&&m.h!=null){
       if(m.a===m.h){m.got.add(m.a);m.a=m.h=null;drawStep()}
       else{const ids=[m.a,m.h];m.a=m.h=null;R.mistakes++;drawStep();
