@@ -356,7 +356,7 @@ function renderLearn(){
 
 function modeBar(){
   const m=MODE(), b=(v,l,full)=>`<button data-mode="${v}" aria-pressed="${m===v}" title="${full}" aria-label="${full}">${l}</button>`;
-  return `<div class="seg" role="group" aria-label="מה ללמוד">${b("pal","פלס׳","פלסטינית בלבד")}${b("fus","רשמי","ערבית רשמית בלבד")}${b("both","שתיהן","פלסטינית ורשמית יחד")}</div>`;
+  return `<div class="seg" role="group" aria-label="מה ללמוד">${b("pal","פלסטיני","פלסטינית בלבד")}${b("fus","רשמי","ערבית רשמית בלבד")}${b("both","שתיהן","פלסטינית ורשמית יחד")}</div>`;
 }
 
 /* ---------- practice tab ---------- */
